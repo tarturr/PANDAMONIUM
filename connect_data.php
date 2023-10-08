@@ -23,6 +23,6 @@ if ($pwd_bdd == $mdp) {
     exit();
 }
 else {
-    header('Location: connexion.html');
+    header('Location: connect.php');
     exit();
 }

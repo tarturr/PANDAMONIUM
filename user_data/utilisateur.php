@@ -63,11 +63,5 @@ class Utilisateur implements UserDataManager {
             'date_enregistre' => $this->dateEnregistre,
             'date_connecte'   => $this->dateConnecte
         ]);
-//        $request->bindParam(':pseudo',          $data['pseudo']);
-//        $request->bindParam(':email',           $data['email']);
-//        $request->bindParam(':mot_de_passe',    $data['mot_de_passe']);
-//        $request->bindParam(':date_naiss',      $data['date_naiss']);
-//        $request->bindParam(':date_enregistre', $data['date_enregistre']);
-//        $request->bindParam(':date_connecte',   $data['date_connecte']);
     }
 }

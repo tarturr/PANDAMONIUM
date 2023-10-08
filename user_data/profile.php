@@ -69,15 +69,5 @@ class Profile implements UserDataManager {
             'disponibilites' => $this->disponibilites,
             'pseudo'         => $this->pseudo
         ]);
-
-//        $request->bindParam(':nom',            $data['nom']);
-//        $request->bindParam(':prenom',         $data['prenom']);
-//        $request->bindParam(':description',    $data['description']);
-//        $request->bindParam(':qualites',       $data['qualites']);
-//        $request->bindParam(':defauts',        $data['defauts']);
-//        $request->bindParam(':email_pro',      $data['email_pro']);
-//        $request->bindParam(':tel',            $data['tel']);
-//        $request->bindParam(':disponibilites', $data['disponibilites']);
-//        $request->bindParam(':pseudo',         $data['pseudo']);
     }
 }

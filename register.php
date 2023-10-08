@@ -17,12 +17,9 @@
         <input type="submit" placeholder="S'inscrire">
     </form>
 
-    <?php
-        if (isset($_GET['errorMessage'])) {
-            echo '<p style="color: red">Une erreur est survenue lors de l\'envoi
-            des informations dans la base de données.<br/>Erreur: ' . $_GET['errorMessage'] . '</p>';
-        }
-    ?>
+    <?php if (isset($_GET['errorMessage'])) { ?>
+        <p style="color: red">Une erreur est survenue lors de l'envoi des informations dans la base de données.<br/>Erreur: <?= $_GET['errorMessage'] ?></p>
+    <?php } ?>
     
 </body>
 </html>
