@@ -1,6 +1,6 @@
 <?php
 
-require 'user_data_manager.php';
+require 'UserDataManager.php';
 
 class Profile implements UserDataManager {
     public $nom;

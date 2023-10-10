@@ -1,8 +1,8 @@
 <?php
 
-require 'user_data_manager.php';
+require 'UserDataManager.php';
 
-class Utilisateur implements UserDataManager {
+class User implements UserDataManager {
     public $pseudo;
     public $email;
     public $motDePasse;

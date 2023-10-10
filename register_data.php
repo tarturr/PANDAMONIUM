@@ -1,8 +1,8 @@
 <?php
 
-require 'user_data/database_connection.php';
-require 'user_data/utilisateur.php';
-require 'common/function_utility.php';
+require 'user_data/DatabaseConnection.php';
+require 'user_data/User.php';
+require 'common/helpers.php';
 
 $connection = new DatabaseConnection('localhost', 'root', '');
 
