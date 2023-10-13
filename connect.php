@@ -14,5 +14,9 @@
         <input name="mdp" type="password" placeholder="Entrez votre mot de passe" required>
         <input type="submit" placeholder="Se connecter">
     </form>
+
+    <?php if (isset($_GET['errorMessage'])) { ?>
+        <p style="color: red">Une erreur est survenue lors de l'envoi des informations dans la base de données.<br/>Erreur: <?= $_GET['errorMessage'] ?></p>
+    <?php } ?>
 </body>
 </html>

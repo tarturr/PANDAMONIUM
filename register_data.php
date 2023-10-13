@@ -17,7 +17,7 @@ if (DateTime::createFromFormat($dateFormatter, $_POST['date_naiss']) > $maxDate)
     sendToPageWithError('register.php', 'Vous êtes trop jeune pour accéder au site !<br/>Vous devez avoir 15 ans minimum.');
 }
 
-$utilisateur = new Utilisateur($connection, $_POST['pseudo'], $_POST['email'], $_POST['mot_de_passe'], $_POST['date_naiss'], $strDateNow, $strDateNow);
+$utilisateur = new User($connection, $_POST['pseudo'], $_POST['email'], $_POST['mot_de_passe'], $_POST['date_naiss'], $strDateNow, $strDateNow);
 
 try {
     $utilisateur->createInDatabase();
