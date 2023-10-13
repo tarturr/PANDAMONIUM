@@ -84,4 +84,13 @@ class Utilisateur implements UserDataManager {
         $request = $this->connection->get()->prepare($strRequest);
         return $request->execute($data);
     }
+
+    public function tryToConnect($password): bool {
+        if ($password == $this->motDePasse) {
+            $this->update(['date_connecte', (new DateTime('now'))->format('Y-m-d H:i:s')]);
+            return true;
+        }
+
+        return false;
+    }
 }
