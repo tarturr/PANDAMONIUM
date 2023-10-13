@@ -21,13 +21,19 @@ if (DateTime::createFromFormat($dateFormatter, $_POST['date_naiss']) > $maxDate)
 $utilisateur = new Utilisateur($connection, $_POST['pseudo'], $_POST['email'], $_POST['mot_de_passe'], $_POST['date_naiss'], $strDateNow, $strDateNow);
 
 try {
-    if (!$utilisateur->createInDatabase()) {
-        sendToPageWithError('register.php', 'An error has occurred while sending data into the database.');
-    } else {
-        setcookie('pseudo', $utilisateur->pseudo, time() + 60 * 60);
-        header('Location: welcome.php');
-        exit();
-    }
+    $utilisateur->createInDatabase();
+    setcookie('pseudo', $utilisateur->pseudo, time() + 60 * 60);
+    header('Location: welcome.php');
+    exit();
 } catch (PDOException $error) {
-    sendToPageWithError('register.php', $error->getMessage());
+    $errorCode = $error->getCode();
+
+    switch ($errorCode) {
+        case 23000:
+            sendToPageWithError('register.php', 'Un utilisateur du nom de "' . $utilisateur->pseudo . '" existe déjà dans la base de données. Veuillez en choisir un autre.');
+        default:
+            sendToPageWithError('register.php', $error->getMessage());
+            break;
+    }
+
 }
