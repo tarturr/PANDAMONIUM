@@ -1,28 +1,16 @@
 <?php
 
-$user = 'nsi_eleve1';
-$password = 'eleve1';
-$connection = new PDO('mysql:host=0504-srv-sig;dbname=nsi_eleve1', $user, $password);
-$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$connection = new DatabaseConnection('localhost', 'root', '');
 
 $pseudo = $_POST['pseudo'];
 $mdp = $_POST['mdp'];
 
-$request = 'SELECT mot_de_passe FROM profil WHERE pseudo = "' . $pseudo . '"';
-$verification = $connection->query('SELECT mot_de_passe FROM utilisateur WHERE pseudo = "' . $pseudo . '" OR email = "' . $pseudo . '"');
-$pwd_bdd = null;
+$user = Utilisateur::fetchFromPseudo($pseudo, $connection);
 
-foreach ($verification as $row){
-    $pwd_bdd = $row['mot_de_passe'];
+if (!$user->tryToConnect($mdp)) {
+    sendToPageWithError('connect.php', 'Le mot de passe entré est incorrect. Réessayez à nouveau.');
 }
-echo $mdp;
 
-if ($pwd_bdd == $mdp) {
-    setcookie("connexion", $pseudo, time() + 60 * 60);
-    header('Location: welcome.php');
-    exit();
-}
-else {
-    header('Location: connect.php');
-    exit();
-}
+setcookie("connexion", $pseudo, time() + 60 * 60);
+header('Location: welcome.php');
+exit();
