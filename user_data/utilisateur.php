@@ -42,7 +42,7 @@ class Utilisateur implements UserDataManager {
                 $row['mot_de_passe'],
                 $row['date_naiss'],
                 $row['date_enregistre'],
-                $row['date_connecte'],
+                (new DateTime('now'))->format('Y-m-d H:i:s'),
                 (count($row['liste_amis']) > 0 ? explode(',', $row['liste_amis']) : array()),
                 Profile::fetchFromPseudo($pseudo, $connection)
             );
