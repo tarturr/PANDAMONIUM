@@ -36,17 +36,17 @@ class Profile implements UserDataManager {
         $query->execute();
         $result = $query->fetch();
 
-        foreach ($result as $row) {
+        if ($result) {
             return new Profile(
                 $connection,
-                $row['nom'],
-                $row['prenom'],
-                $row['description'],
-                $row['qualites'],
-                $row['defauts'],
-                $row['email_pro'],
-                $row['tel'],
-                $row['disponibilites'],
+                $result['nom'],
+                $result['prenom'],
+                $result['description'],
+                $result['qualites'],
+                $result['defauts'],
+                $result['email_pro'],
+                $result['tel'],
+                $result['disponibilites'],
                 $pseudo
             );
         }

@@ -1,6 +1,6 @@
 <?php
 
-require 'UserDataManager.php';
+require 'Profile.php';
 
 class User implements UserDataManager {
     public $pseudo;
@@ -34,16 +34,16 @@ class User implements UserDataManager {
         $query->execute();
         $result = $query->fetch();
 
-        foreach ($result as $row) {
+        if ($result) {
             return new User(
                 $connection,
-                $row['pseudo'],
-                $row['email'],
-                $row['mot_de_passe'],
-                $row['date_naiss'],
-                $row['date_enregistre'],
-                $row['date_connecte'],
-                (count($row['liste_amis']) > 0 ? explode(',', $row['liste_amis']) : array()),
+                $result['pseudo'],
+                $result['email'],
+                $result['mot_de_passe'],
+                $result['date_naiss'],
+                $result['date_enregistre'],
+                $result['date_connecte'],
+                (strlen($result['liste_amis']) > 0 ? explode(',', $result['liste_amis']) : array()),
                 Profile::fetchFromPseudo($pseudo, $connection)
             );
         }
@@ -62,7 +62,7 @@ class User implements UserDataManager {
             'date_naiss'      => $this->dateNaiss,
             'date_enregistre' => $this->dateEnregistre,
             'date_connecte'   => $this->dateConnecte,
-            'liste_amis'      => $this->listeAmis
+            'liste_amis'      => (count($this->listeAmis) > 0 ? explode(',', $this->listeAmis) : '')
         ]);
     }
 
@@ -87,7 +87,7 @@ class User implements UserDataManager {
 
     public function tryToConnect($password): bool {
         if ($password == $this->motDePasse) {
-            $this->update(['date_connecte', (new DateTime('now'))->format('Y-m-d H:i:s')]);
+            $this->update(['date_connecte' => (new DateTime('now'))->format('Y-m-d H:i:s')]);
             return true;
         }
 
