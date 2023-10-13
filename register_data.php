@@ -31,6 +31,7 @@ try {
     switch ($errorCode) {
         case 23000:
             sendToPageWithError('register.php', 'Un utilisateur du nom de "' . $utilisateur->pseudo . '" existe déjà dans la base de données. Veuillez en choisir un autre.');
+            break;
         default:
             sendToPageWithError('register.php', $error->getMessage());
             break;
