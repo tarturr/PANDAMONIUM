@@ -1,8 +1,8 @@
 <?php
 
-require 'user_data_manager.php';
+require 'UserDataManager.php';
 
-class Utilisateur implements UserDataManager {
+class User implements UserDataManager {
     public $pseudo;
     public $email;
     public $motDePasse;
@@ -27,15 +27,15 @@ class Utilisateur implements UserDataManager {
         $this->connection = $connection;
     }
 
-    public static function fetchFromPseudo($pseudo, $connection): ?Utilisateur {
-        $query = $connection->get()->prepare('SELECT * FROM utilisateur WHERE pseudo = :pseudo');
+    public static function fetchFromPseudo($pseudo, $connection): ?User {
+        $query = $connection->prepare('SELECT * FROM utilisateur WHERE pseudo = :pseudo');
 
         $query->bindParam(':pseudo', $pseudo);
         $query->execute();
         $result = $query->fetch();
 
         foreach ($result as $row) {
-            return new Utilisateur(
+            return new User(
                 $connection,
                 $row['pseudo'],
                 $row['email'],
@@ -53,7 +53,7 @@ class Utilisateur implements UserDataManager {
 
     public function createInDatabase(): bool {
         $sqlRequest = 'INSERT INTO utilisateur VALUES(:pseudo, :email, :mot_de_passe, :date_naiss, :date_enregistre, :date_connecte, :liste_amis)';
-        $request = $this->connection->get()->prepare($sqlRequest);
+        $request = $this->connection->prepare($sqlRequest);
 
         return $request->execute([
             'pseudo'          => $this->pseudo,
@@ -81,7 +81,7 @@ class Utilisateur implements UserDataManager {
             }
         }
 
-        $request = $this->connection->get()->prepare($strRequest);
+        $request = $this->connection->prepare($strRequest);
         return $request->execute($data);
     }
 

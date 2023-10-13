@@ -1,10 +1,9 @@
 <?php
 
-require 'user_data/database_connection.php';
-require 'user_data/utilisateur.php';
-require 'common/function_utility.php';
+require 'user_data/User.php';
+require 'common/common_functions.php';
 
-$connection = new DatabaseConnection('localhost', 'root', '');
+$connection = establishDatabaseConnection('localhost', 'root', '');
 
 $dateFormatter = 'Y-m-d H:i:s';
 $dateNow = new DateTime('now');

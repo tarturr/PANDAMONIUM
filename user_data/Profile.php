@@ -1,6 +1,6 @@
 <?php
 
-require 'user_data_manager.php';
+require 'UserDataManager.php';
 
 class Profile implements UserDataManager {
     public $nom;
@@ -30,7 +30,7 @@ class Profile implements UserDataManager {
 
 
     public static function fetchFromPseudo($pseudo, $connection): ?Profile {
-        $query = $connection->get()->prepare('SELECT * FROM profil WHERE pseudo = :pseudo');
+        $query = $connection->prepare('SELECT * FROM profil WHERE pseudo = :pseudo');
 
         $query->bindParam(':pseudo', $pseudo);
         $query->execute();
@@ -56,7 +56,7 @@ class Profile implements UserDataManager {
 
     public function createInDatabase(): bool {
         $sqlRequest = 'INSERT INTO profil VALUES(:nom, :prenom, :description, :qualites, :defauts, :email_pro, :tel, :disponibilites, :pseudo)';
-        $request = $this->connection->get()->prepare($sqlRequest);
+        $request = $this->connection->prepare($sqlRequest);
 
         return $request->execute([
             'nom'            => $this->nom,
