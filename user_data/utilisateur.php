@@ -42,7 +42,7 @@ class Utilisateur implements UserDataManager {
                 $row['mot_de_passe'],
                 $row['date_naiss'],
                 $row['date_enregistre'],
-                (new DateTime('now'))->format('Y-m-d H:i:s'),
+                $row['date_connecte'],
                 (count($row['liste_amis']) > 0 ? explode(',', $row['liste_amis']) : array()),
                 Profile::fetchFromPseudo($pseudo, $connection)
             );
@@ -52,7 +52,7 @@ class Utilisateur implements UserDataManager {
     }
 
     public function createInDatabase(): bool {
-        $sqlRequest = 'INSERT INTO utilisateur VALUES(:pseudo, :email, :mot_de_passe, :date_naiss, :date_enregistre, :date_connecte, NULL)';
+        $sqlRequest = 'INSERT INTO utilisateur VALUES(:pseudo, :email, :mot_de_passe, :date_naiss, :date_enregistre, :date_connecte, :liste_amis)';
         $request = $this->connection->get()->prepare($sqlRequest);
 
         return $request->execute([
@@ -61,7 +61,27 @@ class Utilisateur implements UserDataManager {
             'mot_de_passe'    => $this->motDePasse,
             'date_naiss'      => $this->dateNaiss,
             'date_enregistre' => $this->dateEnregistre,
-            'date_connecte'   => $this->dateConnecte
+            'date_connecte'   => $this->dateConnecte,
+            'liste_amis'      => $this->listeAmis
         ]);
+    }
+
+    public function update($data): bool {
+        if (count($data) == 0) return true;
+
+        $strRequest = 'UPDATE utilisateur SET ';
+        $left = count($data);
+
+        foreach ($data as $column => $value) {
+            $strRequest = $strRequest . $column . ' = :' . $column;
+            $left--;
+
+            if ($left > 0) {
+                $strRequest = $strRequest . ', ';
+            }
+        }
+
+        $request = $this->connection->get()->prepare($strRequest);
+        return $request->execute($data);
     }
 }
