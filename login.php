@@ -9,7 +9,7 @@
 
     <h1>Se connecter à DiscordIn</h1>
 
-    <form method="POST" action="connect_data.php" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
+    <form method="POST" action="login_data.php" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
         <input name="pseudo" type="text" placeholder="Entrez votre pseudo ou votre email" required>
         <input name="mdp" type="password" placeholder="Entrez votre mot de passe" required>
         <input type="submit" placeholder="Se connecter">

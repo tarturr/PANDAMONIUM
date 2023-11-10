@@ -11,7 +11,7 @@ $mdp = $_POST['mdp'];
 $user = User::fetchFrom($connection, $pseudo);
 
 if (!$user->tryToConnect($mdp)) {
-    sendToPageWithError('connect.php', 'Le mot de passe entré est incorrect. Réessayez à nouveau.');
+    sendToPageWithError('login.php', 'Le mot de passe entré est incorrect. Réessayez à nouveau.');
 }
 
 setcookie("connexion", $pseudo, time() + 60 * 60);
