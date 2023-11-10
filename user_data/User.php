@@ -2,19 +2,19 @@
 
 require 'Profile.php';
 
-class User implements UserDataManager {
-    public $pseudo;
-    public $email;
-    public $motDePasse;
+class User extends DatabaseColumn {
+    public string $pseudo;
+    public string $email;
+    public string $motDePasse;
     public $dateNaiss;
     public $dateEnregistre;
     public $dateConnecte;
     public $listeAmis;
-    public $profil;
-
-    private $connection;
+    public ?Profile $profil;
 
     public function __construct($connection, $pseudo, $email, $motDePasse, $dateNaiss, $dateEnregistre, $dateConnecte, $listeAmis = array(), $profil = null) {
+        parent::__construct($connection, "utilisateur");
+
         $this->pseudo = $pseudo;
         $this->email = $email;
         $this->motDePasse = $motDePasse;
@@ -23,14 +23,13 @@ class User implements UserDataManager {
         $this->dateConnecte = $dateConnecte;
         $this->listeAmis = $listeAmis;
         $this->profil = $profil;
-
-        $this->connection = $connection;
     }
 
-    public static function fetchFromPseudo($pseudo, $connection): ?User {
-        $query = $connection->prepare('SELECT * FROM utilisateur WHERE pseudo = :pseudo');
+    public static final function fetchFrom($connection, $column): ?User {
+        $sqlRequest = 'SELECT * FROM utilisateur WHERE pseudo = :pseudo';
+        $query = $connection->prepare($sqlRequest);
 
-        $query->bindParam(':pseudo', $pseudo);
+        $query->bindParam(':pseudo', $column);
         $query->execute();
         $result = $query->fetch();
 
@@ -44,16 +43,16 @@ class User implements UserDataManager {
                 $result['date_enregistre'],
                 $result['date_connecte'],
                 (strlen($result['liste_amis']) > 0 ? explode(',', $result['liste_amis']) : array()),
-                Profile::fetchFromPseudo($pseudo, $connection)
+                Profile::fetchFrom($connection, $column)
             );
         }
 
         return null;
     }
 
-    public function createInDatabase(): bool {
+    protected final function createImpl(): bool {
         $sqlRequest = 'INSERT INTO utilisateur VALUES(:pseudo, :email, :mot_de_passe, :date_naiss, :date_enregistre, :date_connecte, :liste_amis)';
-        $request = $this->connection->prepare($sqlRequest);
+        $request = $this->prepare($sqlRequest);
 
         return $request->execute([
             'pseudo'          => $this->pseudo,
@@ -64,25 +63,6 @@ class User implements UserDataManager {
             'date_connecte'   => $this->dateConnecte,
             'liste_amis'      => (count($this->listeAmis) > 0 ? explode(',', $this->listeAmis) : '')
         ]);
-    }
-
-    public function update($data): bool {
-        if (count($data) == 0) return true;
-
-        $strRequest = 'UPDATE utilisateur SET ';
-        $left = count($data);
-
-        foreach ($data as $column => $value) {
-            $strRequest = $strRequest . $column . ' = :' . $column;
-            $left--;
-
-            if ($left > 0) {
-                $strRequest = $strRequest . ', ';
-            }
-        }
-
-        $request = $this->connection->prepare($strRequest);
-        return $request->execute($data);
     }
 
     public function tryToConnect($password): bool {

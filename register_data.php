@@ -20,7 +20,7 @@ if (DateTime::createFromFormat($dateFormatter, $_POST['date_naiss']) > $maxDate)
 $utilisateur = new User($connection, $_POST['pseudo'], $_POST['email'], $_POST['mot_de_passe'], $_POST['date_naiss'], $strDateNow, $strDateNow);
 
 try {
-    $utilisateur->createInDatabase();
+    $utilisateur->create();
     setcookie('pseudo', $utilisateur->pseudo, time() + 60 * 60);
     header('Location: welcome.php');
     exit();

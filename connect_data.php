@@ -8,7 +8,7 @@ $connection = establishDatabaseConnection('localhost', 'root', '');
 $pseudo = $_POST['pseudo'];
 $mdp = $_POST['mdp'];
 
-$user = User::fetchFromPseudo($pseudo, $connection);
+$user = User::fetchFrom($connection, $pseudo);
 
 if (!$user->tryToConnect($mdp)) {
     sendToPageWithError('connect.php', 'Le mot de passe entré est incorrect. Réessayez à nouveau.');

@@ -1,22 +1,22 @@
 <?php
 
-require 'UserDataManager.php';
+require 'DatabaseColumn.php';
 
-class Profile implements UserDataManager {
-    public $nom;
-    public $prenom;
-    public $description;
-    public $qualites;
-    public $defauts;
-    public $emailPro;
-    public $tel;
-    public $disponibilites;
+class Profile extends DatabaseColumn {
+    public string $nom;
+    public string $prenom;
+    public string $description;
+    public string $qualites;
+    public string $defauts;
+    public string $emailPro;
+    public string $tel;
+    public string $disponibilites;
 
-    private $pseudo;
-    private $connection;
+    private string $pseudo;
 
     public function __construct($connection, $nom, $prenom, $description, $qualites, $defauts, $emailPro, $tel, $disponibilites, $pseudo) {
-        $this->connection = $connection;
+        parent::__construct($connection, "profil");
+        
         $this->nom = $nom;
         $this->prenom = $prenom;
         $this->description = $description;
@@ -29,10 +29,11 @@ class Profile implements UserDataManager {
     }
 
 
-    public static function fetchFromPseudo($pseudo, $connection): ?Profile {
-        $query = $connection->prepare('SELECT * FROM profil WHERE pseudo = :pseudo');
+    public static final function fetchFrom($connection, $column): ?Profile {
+        $sqlRequest = 'SELECT * FROM profil WHERE pseudo = :pseudo';
+        $query = $connection->prepare($sqlRequest);
 
-        $query->bindParam(':pseudo', $pseudo);
+        $query->bindParam(':pseudo', $column);
         $query->execute();
         $result = $query->fetch();
 
@@ -47,16 +48,16 @@ class Profile implements UserDataManager {
                 $result['email_pro'],
                 $result['tel'],
                 $result['disponibilites'],
-                $pseudo
+                $column
             );
         }
 
         return null;
     }
 
-    public function createInDatabase(): bool {
+    protected final function createImpl(): bool {
         $sqlRequest = 'INSERT INTO profil VALUES(:nom, :prenom, :description, :qualites, :defauts, :email_pro, :tel, :disponibilites, :pseudo)';
-        $request = $this->connection->prepare($sqlRequest);
+        $request = $this->prepare($sqlRequest);
 
         return $request->execute([
             'nom'            => $this->nom,
