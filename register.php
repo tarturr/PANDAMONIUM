@@ -9,7 +9,7 @@
 
     <h1>S'inscrire</h1>
 
-    <form action="register_data.php" method="POST" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
+    <form action="data_handling/register_data.php" method="POST" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
         <input name="pseudo" type="text" placeholder="Pseudo" required>
         <input name="email" type="email" placeholder="Email" required>
         <input name="mot_de_passe" type="password" placeholder="Mot de passe" required>
