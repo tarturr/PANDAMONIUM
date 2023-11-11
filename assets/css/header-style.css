@@ -1,0 +1,166 @@
+@font-face {
+    src: url('../font/Louis George Cafe.ttf');
+    font-family: 'louis';
+}
+
+:root {
+    /* Colors */
+    --main: #007EBB;
+    --deep-main: #1B6387;
+    --dark-main: #224354;
+    --grey-main: #1F2C33;
+    --grey: #293033;
+    --pseudo-elements-color: var(--grey-main);
+    --link-hover-color: var(--dark-main);
+    --btn-hover-color: white;
+    --btn-hover-background-color: var(--main);
+
+    /* Durations */
+    --transition: 0.5s;
+}
+
+body {
+    position: relative;
+}
+
+#top-page {
+    display: flex;
+    justify-content: space-between;
+
+    height: 10vh;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0 15% 0 15%;
+
+    background-color: white;
+}
+
+#top-page, #top-page * {
+    transition: var(--transition);
+}
+
+#top-page a {
+    text-decoration: none;
+    font: 1.3em 'louis', sans-serif;
+    color: var(--grey);
+}
+
+#top-page .tool-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 900px;
+}
+
+#top-page .tool-bar .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+    width: 25%;
+}
+
+#top-page .tool-bar .logo img {
+    height: 50%;
+
+    transition: var(--transition);
+}
+
+#top-page .tool-bar #tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    height: 100%;
+    width: 75%;
+}
+
+#top-page .tool-bar #tools a {
+    position: relative;
+
+    color: var(--dark-main);
+}
+
+#top-page .tool-bar #tools a::before {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-5px);
+
+    width: 0;
+    height: 2px;
+
+    background-color: var(--pseudo-elements-color);
+
+    transition: var(--transition);
+}
+
+#top-page .tool-bar #tools a:hover::before {
+    width: 100%;
+}
+
+#top-page .tool-bar #tools a::after {
+    content: '';
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    transform: translateY(5px);
+
+    width: 0;
+    height: 2px;
+
+    background-color: var(--pseudo-elements-color);
+
+    transition: var(--transition);
+}
+
+#top-page .tool-bar #tools a:hover::after {
+    width: 100%;
+}
+
+#top-page hr {
+    align-self: center;
+
+    height: 50%;
+    width: 1px;
+
+    border: none;
+
+    background-color: var(--dark-main);
+}
+
+#top-page .account {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    width: 400px;
+}
+
+#top-page .account a {
+    color: var(--deep-main);
+}
+
+#top-page .account .link:hover {
+    color: var(--link-hover-color);
+}
+
+#top-page .account .btn {
+    padding: 10px 15px;
+
+    border: solid var(--main) 2px;
+    border-radius: 50px;
+}
+
+#top-page .account .btn:hover {
+    color: var(--btn-hover-color);
+    background-color: var(--btn-hover-background-color);
+}
