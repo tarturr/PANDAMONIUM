@@ -90,16 +90,6 @@ function setCSSVariables(values) {
 
 
 // ============= Hover effects =============
-for (let btn of navLinks) {
-    btn.addEventListener('mouseenter', () => {
-        btn.style.color = inverted ? '#d7d7d7' : 'var(--dark-main)';
-    });
-
-    btn.addEventListener('mouseleave', () => {
-        btn.style.color = inverted ? 'white' : 'var(--deep-main)';
-    });
-}
-
 for (let btn of navBtns) {
     btn.addEventListener('mouseenter', () => {
         btn.style.color = inverted ? 'var(--deep-main)' : 'white';
@@ -117,7 +107,7 @@ for (let btn of navBtns) {
 
 // ============ Logo animations ============
 const strTransition = window.getComputedStyle(logoText).getPropertyValue('transition');
-const transition = extractTransition(strTransition) * 1200;
+const transition = extractTransition(strTransition) * 1000;
 
 const between = transition / 3.6;
 const total = between + transition + 250;
