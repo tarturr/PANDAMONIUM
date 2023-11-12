@@ -7,7 +7,8 @@ let navLinks = navbar.querySelectorAll('.account a');
 let navBtns = navbar.querySelectorAll('.account .btn');
 let separation = navbar.querySelector('hr');
 let parentLogo = document.querySelector('.logo');
-let logo = parentLogo.querySelector('img');
+let logoText = parentLogo.querySelector('.logo-text');
+let logoIcon = parentLogo.querySelector('.logo-icon');
 
 document.addEventListener('scroll', () => {
     let coord = window.scrollY;
@@ -26,7 +27,8 @@ document.addEventListener('scroll', () => {
 function setDefaultStyle() {
     navbar.style.backgroundColor = 'white';
     separation.style.backgroundColor = 'var(--dark-main)';
-    logo.src = 'assets/img/logo.png';
+    logoText.src = 'assets/img/logo-no-icon.png';
+    logoIcon.src = 'assets/img/icon.png';
 
     for (let btn of toolLinks) {
         btn.style.color = 'var(--dark-main)';
@@ -52,7 +54,8 @@ function setDefaultStyle() {
 function invertStyle() {
     navbar.style.backgroundColor = 'var(--main)';
     separation.style.backgroundColor = 'white';
-    logo.src = 'assets/img/inverted-logo.png';
+    logoText.src = 'assets/img/inverted-logo-no-icon.png';
+    logoIcon.src = 'assets/img/inverted-icon.png';
 
     for (let btn of toolLinks) {
         btn.style.color = 'white';
@@ -113,27 +116,55 @@ for (let btn of navBtns) {
 
 
 // ============ Logo animations ============
-const strTransition = window.getComputedStyle(logo).getPropertyValue('transition');
-const halfTransition = extractTransition(strTransition) * 1000 / 3;
+const strTransition = window.getComputedStyle(logoText).getPropertyValue('transition');
+const transition = extractTransition(strTransition) * 1200;
+
+const between = transition / 3.6;
+const total = between + transition + 250;
+
+const logoIconSize = window.getComputedStyle(logoIcon).width;
+const newLocation = 205 / 2 - +logoIconSize.substring(0, logoIconSize.length - 2) / 2;
 
 parentLogo.addEventListener('mouseenter', () => {
-    setTimeout(() => {
-        logo.src = 'assets/img/' + (inverted ? 'inverted-' : '') + 'icon.png';
-        logo.style.opacity = '100%';
-    }, halfTransition);
+    logoText.style.transform = 'translateY(10px)';
 
-    logo.style.transform = 'rotateZ(360deg)';
-    logo.style.opacity = '0';
+    setTimeout(() => {
+        logoText.style.transform = 'translateY(-25px)';
+    }, between);
+
+    setTimeout(() => {
+        logoText.style.transform = 'translateY(100px)';
+    }, transition);
+
+    setTimeout(() => {
+        logoIcon.style.transform = `translateX(-${newLocation}px) rotateZ(-360deg)`;
+    }, total);
+
+    setTimeout(() => {
+        logoText.style.display = 'none';
+        parentLogo.style.justifyContent = 'right';
+    }, total + transition);
 });
 
 parentLogo.addEventListener('mouseleave', () => {
-    setTimeout(() => {
-        logo.src = 'assets/img/' + (inverted ? 'inverted-' : '') + 'logo.png';
-        logo.style.opacity = '100%';
-    }, halfTransition);
+    logoIcon.style.transform = `translateX(0px) rotateZ(-0deg)`;
 
-    logo.style.transform = 'rotateZ(0)';
-    logo.style.opacity = '0';
+    setTimeout(() => {
+        logoText.style.display = 'block';
+        parentLogo.style.justifyContent = 'space-between';
+    }, between);
+
+    setTimeout(() => {
+        logoText.style.transform = 'translateY(-25px)';
+    }, transition);
+
+    setTimeout(() => {
+        logoText.style.transform = 'translateY(10px)';
+    }, total);
+
+    setTimeout(() => {
+        logoText.style.transform = 'translateY(0)';
+    }, total + 250);
 });
 
 function extractTransition(strTransition) {
