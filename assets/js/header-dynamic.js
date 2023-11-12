@@ -125,28 +125,38 @@ const total = between + transition + 250;
 const logoIconSize = window.getComputedStyle(logoIcon).width;
 const newLocation = 205 / 2 - +logoIconSize.substring(0, logoIconSize.length - 2) / 2;
 
+let isMouseOver = false;
+
 parentLogo.addEventListener('mouseenter', () => {
+    isMouseOver = true;
     logoText.style.transform = 'translateY(10px)';
 
-    setTimeout(() => {
-        logoText.style.transform = 'translateY(-25px)';
-    }, between);
+    if (isMouseOver)
+        setTimeout(() => {
+            if (isMouseOver) logoText.style.transform = 'translateY(-25px)';
+        }, between);
 
-    setTimeout(() => {
-        logoText.style.transform = 'translateY(100px)';
-    }, transition);
+    if (isMouseOver)
+        setTimeout(() => {
+            if(isMouseOver) logoText.style.transform = 'translateY(100px)';
+        }, transition);
 
-    setTimeout(() => {
-        logoIcon.style.transform = `translateX(-${newLocation}px) rotateZ(-360deg)`;
-    }, total);
+    if (isMouseOver)
+        setTimeout(() => {
+            if (isMouseOver) logoIcon.style.transform = `translateX(-${newLocation}px) rotateZ(-360deg)`;
+        }, total);
 
-    setTimeout(() => {
-        logoText.style.display = 'none';
-        parentLogo.style.justifyContent = 'right';
-    }, total + transition);
+    if (isMouseOver)
+        setTimeout(() => {
+            if (isMouseOver) {
+                logoText.style.display = 'none';
+                parentLogo.style.justifyContent = 'right';
+            }
+        }, total + transition);
 });
 
 parentLogo.addEventListener('mouseleave', () => {
+    isMouseOver = false;
     logoIcon.style.transform = `translateX(0px) rotateZ(-0deg)`;
 
     setTimeout(() => {
