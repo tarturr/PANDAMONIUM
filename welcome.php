@@ -9,20 +9,17 @@
     <script src="https://kit.fontawesome.com/3198643e95.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <?php require 'header.php'; ?>
+    <?php
+    require 'header.php';
+    require_once 'common/common_functions.php';
+    ?>
 
-    <p>Salut à toi, <span style="color: blue">
-            <?php
-            $pseudo = $_COOKIE['pseudo'];
-            echo $pseudo;
+    <?php if (isLogged()) { ?>
+        <p>Salut à toi, <span style="color: blue"><?= $_COOKIE['pseudo'] ?></span> !</p>
+    <?php } else { ?>
+        <p>N'hésitez pas à vous connecter pour profiter de toutes les fonctionnalités du site web ! :)</p>
+    <?php } ?>
 
-//            if (!isset($pseudo)) {
-//                sendToPageWithError('login.php', 'Votre session a expiré. Veuillez vous reconnecter.');
-//            } else {
-//                echo $pseudo;
-//            }
-            ?>
-        </span> !</p>
     <script src="assets/js/header-dynamic.js"></script>
 </body>
 </html>

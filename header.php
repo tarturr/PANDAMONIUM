@@ -1,4 +1,4 @@
-<?php require 'common/common_functions.php' ?>
+<?php require_once 'common/common_functions.php' ?>
 
 <header id="top-page">
     <div class="tool-bar">

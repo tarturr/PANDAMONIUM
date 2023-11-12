@@ -11,9 +11,6 @@
     --grey-main: #1F2C33;
     --grey: #293033;
     --pseudo-elements-color: var(--grey-main);
-    --link-hover-color: var(--dark-main);
-    --btn-hover-color: white;
-    --btn-hover-background-color: var(--main);
 
     /* Durations */
     --transition: 0.5s;
@@ -21,6 +18,10 @@
 
 body {
     position: relative;
+}
+
+#top-page + * {
+    margin-top: 10vh;
 }
 
 #top-page {
@@ -149,18 +150,9 @@ body {
     color: var(--deep-main);
 }
 
-#top-page .account .link:hover {
-    color: var(--link-hover-color);
-}
-
 #top-page .account .btn {
     padding: 10px 15px;
 
     border: solid var(--main) 2px;
     border-radius: 50px;
-}
-
-#top-page .account .btn:hover {
-    color: var(--btn-hover-color);
-    background-color: var(--btn-hover-background-color);
 }
