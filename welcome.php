@@ -19,7 +19,5 @@
     <?php } else { ?>
         <p>N'hésitez pas à vous connecter pour profiter de toutes les fonctionnalités du site web ! :)</p>
     <?php } ?>
-
-    <script src="assets/js/header-dynamic.js"></script>
 </body>
 </html>
