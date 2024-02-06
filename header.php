@@ -20,8 +20,8 @@ $placeHolder = new HTMLPlaceholder('header', array(new NavbarDisplay('navbar')))
 <header id="top-page">
     <div class="tool-bar">
         <a class="logo" href="/">
-            <img src="assets/img/logo-no-icon.png" class="logo-text" alt="Logo de DiscordIn sans l'icône">
-            <img src="assets/img/icon.png" class="logo-icon" alt="Icône du logo Discord">
+            <img src="assets/img/logo-no-icon.png" class="logo-text" alt="Logo de PANDEMONIUM sans l'icône">
+            <img src="assets/img/icon.png" class="logo-icon" alt="Icône du logo PANDEMONIUM">
         </a>
 
         <nav id="tools">

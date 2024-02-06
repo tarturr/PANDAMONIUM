@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiscordIn - Bienvenue !</title>
+    <title>PANDEMONIUM - Bienvenue !</title>
     <link rel="stylesheet" href="assets/css/header-style.css">
     <link rel="stylesheet" href="assets/css/welcome-style.css">
     <script src="https://kit.fontawesome.com/3198643e95.js" crossorigin="anonymous"></script>

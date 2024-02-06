@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiscordIn - Connexion</title>
+    <title>PANDEMONIUM - Connexion</title>
 </head>
 <body>
-    <h1>Se connecter à DiscordIn</h1>
+    <h1>Se connecter à PANDEMONIUM</h1>
 
     <form method="POST" action="data_handling/login_data.php" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
         <input name="pseudo" type="text" placeholder="Entrez votre pseudo ou votre email" required>
