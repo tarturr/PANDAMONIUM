@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier le profil - DiscordIn</title>
+    <title>Modifier le profil - PANDEMONIUM</title>
 </head>
 <body>
     <h1>Modifier le profil public</h1>
