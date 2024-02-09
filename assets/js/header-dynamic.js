@@ -2,9 +2,9 @@
 let inverted = false;
 
 let navbar = document.querySelector('#top-page');
-let toolLinks = document.querySelectorAll('.tool-bar #tools .button');
-let navLinks = navbar.querySelectorAll('.account .button');
-let navBtns = navbar.querySelectorAll('.account .btn');
+let toolLinks = document.querySelectorAll('.tool-bar #tools a');
+let buttonThin = navbar.querySelectorAll('.button.thin');
+let buttonBold = navbar.querySelectorAll('.button.bold');
 let separation = navbar.querySelector('hr');
 let parentLogo = document.querySelector('.logo');
 let logoText = parentLogo.querySelector('.logo-text');
@@ -34,11 +34,11 @@ function setDefaultStyle() {
         btn.style.color = 'var(--dark-main)';
     }
 
-    for (let btn of navLinks) {
+    for (let btn of buttonThin) {
         btn.style.color = 'var(--deep-main)';
     }
 
-    for (let btn of navBtns) {
+    for (let btn of buttonBold) {
         btn.style.color = 'var(--deep-main)';
         btn.style.borderColor = 'var(--main)';
         btn.style.backgroundColor = 'white';
@@ -61,11 +61,11 @@ function invertStyle() {
         btn.style.color = 'white';
     }
 
-    for (let btn of navLinks) {
+    for (let btn of buttonThin) {
         btn.style.color = 'white';
     }
 
-    for (let btn of navBtns) {
+    for (let btn of buttonBold) {
         btn.style.color = 'white';
         btn.style.borderColor = 'white';
         btn.style.backgroundColor = 'var(--main)';
@@ -90,15 +90,17 @@ function setCSSVariables(values) {
 
 
 // ============= Hover effects =============
-for (let btn of navBtns) {
+for (let btn of buttonBold) {
     btn.addEventListener('mouseenter', () => {
         btn.style.color = inverted ? 'var(--deep-main)' : 'white';
         btn.style.backgroundColor = inverted ? 'white' : 'var(--main)';
+        console.log('ENTER')
     });
 
     btn.addEventListener('mouseleave', () => {
         btn.style.color = inverted ? 'white' : 'var(--deep-main)';
         btn.style.backgroundColor = inverted ? 'var(--main)' : 'white';
+        console.log('LEAVE')
     });
 }
 

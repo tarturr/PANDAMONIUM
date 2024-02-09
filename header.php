@@ -4,13 +4,13 @@ require_once 'data_handling/HTMLPlaceholder.php';
 
 class NavbarDisplay extends HTMLDisplay {
     protected function displayIfLogged(): void { ?>
-        <a href="profil.php" class="button link"><i class="fa-solid fa-user"></i> <?= $_COOKIE['pseudo'] ?></a>
-        <a href="data_handling/logout_data.php?redirectTo=welcome.php" class="button btn">Se déconnecter <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+        <a href="profil.php" class="button thin"><i class="fa-solid fa-user"></i> <?= $_COOKIE['pseudo'] ?></a>
+        <a href="data_handling/logout_data.php?redirectTo=welcome.php" class="button bold">Se déconnecter <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
     <?php }
 
     protected function displayIfNotLogged(): void { ?>
-        <a href="login.php" class="button btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter</a>
-        <a href="register.php" class="button link"><i class="fa-solid fa-user-plus"></i> S'enregistrer</a>
+        <a href="login.php" class="button bold"><i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter</a>
+        <a href="register.php" class="button thin"><i class="fa-solid fa-user-plus"></i> S'enregistrer</a>
     <?php }
 }
 
@@ -38,5 +38,3 @@ $placeHolder = new HTMLPlaceholder('header', array(new NavbarDisplay('navbar')))
         <?php $placeHolder->display('navbar'); ?>
     </div>
 </header>
-
-<script src="assets/js/header-dynamic.js"></script>

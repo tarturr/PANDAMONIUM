@@ -47,7 +47,6 @@ body {
 #top-page a {
     text-decoration: none;
     font: 1.3em 'louis', sans-serif;
-    color: var(--grey);
 }
 
 #top-page .tool-bar {
@@ -56,6 +55,8 @@ body {
     justify-content: space-between;
 
     width: 900px;
+
+    color: var(--grey);
 }
 
 #top-page .tool-bar .logo {
@@ -149,27 +150,31 @@ body {
     width: 400px;
 }
 
-#top-page .account .button {
+.button {
     padding: 10px 15px;
 
     border-radius: 50px;
 
     color: var(--deep-main);
+    font-family: 'louis', sans-serif;
+    text-decoration: none;
+
+    box-shadow: 0 2px 4px grey;
 }
 
-#top-page .account .btn {
+.button.bold {
     border: solid var(--main) 2px;
 }
 
-#top-page .account .link {
+.button.thin {
     position: relative;
 
     overflow: hidden;
 
-    background-color: rgba(0, 0, 0, 0.075);
+    background-color: rgb(236,236,236);
 }
 
-#top-page .account .link::after {
+.button.thin::after {
     content: '';
 
     width: 0;
@@ -185,6 +190,6 @@ body {
     transition: var(--transition);
 }
 
-#top-page .account .link:hover::after {
+.button.thin:hover::after {
     width: 100%;
 }
