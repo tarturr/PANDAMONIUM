@@ -2,8 +2,8 @@
 let inverted = false;
 
 let navbar = document.querySelector('#top-page');
-let toolLinks = document.querySelectorAll('.tool-bar #tools a');
-let navLinks = navbar.querySelectorAll('.account a');
+let toolLinks = document.querySelectorAll('.tool-bar #tools .button');
+let navLinks = navbar.querySelectorAll('.account .button');
 let navBtns = navbar.querySelectorAll('.account .btn');
 let separation = navbar.querySelector('hr');
 let parentLogo = document.querySelector('.logo');

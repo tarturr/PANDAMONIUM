@@ -149,7 +149,7 @@ body {
     width: 400px;
 }
 
-#top-page .account a {
+#top-page .account .button {
     padding: 10px 15px;
 
     border-radius: 50px;
