@@ -38,3 +38,5 @@ $placeHolder = new HTMLPlaceholder('header', array(new NavbarDisplay('navbar')))
         <?php $placeHolder->display('navbar'); ?>
     </div>
 </header>
+
+<script src="assets/js/header-dynamic.js"></script>
