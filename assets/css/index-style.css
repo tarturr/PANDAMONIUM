@@ -1,3 +1,13 @@
+@font-face {
+    src: url("../font/Inter-Light.ttf");
+    font-family: "Inter Light";
+}
+
+@font-face {
+    src: url("../font/Inter-Regular.ttf");
+    font-family: "Inter Regular";
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -9,14 +19,55 @@ body {
     align-items: center;
     justify-content: space-between;
 
-    height: 90vh;
+    height: 70vh;
+    width: 80%;
 
-    margin: 10vh 10vw 0 10vw;
-    background-color: blue;
+    margin: 10vh auto 0 auto;
 }
 
 #landing-page .presentation {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 
+    width: 650px;
+    height: 468px;
+}
 
-    background-color: red;
+#landing-page .presentation {
+    font-family: 'Inter Light', serif;
+}
+
+#landing-page .presentation .text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 295px;
+}
+
+#landing-page .presentation .text > * {
+    margin: 0;
+}
+
+#landing-page .presentation .text h1 {
+    font-family: 'Inter Regular', serif;
+    font-size: 4em;
+}
+
+#landing-page .presentation .text p {
+    font-size: 1.6em;
+}
+
+#landing-page .presentation a {
+    align-self: center;
+    font-size: 1.25em;
+}
+
+#landing-page img {
+    height: 400px;
+}
+
+.wave {
+    width: 100vw;
 }
