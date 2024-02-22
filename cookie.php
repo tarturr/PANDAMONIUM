@@ -45,15 +45,15 @@
     font-family: 'ArchivoBlack';
     font-size: 25px;
 }
-.cookie-link a {
+.cookie-link {
     text-decoration: none;
     font-family: 'ArchivoBlack';
     font-size: 15px;
 }
-#privacy-policy a {
+#privacy-policy {
     color: #b62000;
 }
-#accept-cookies a {
+#accept-cookies {
     color: #1e8532;
 }
 @media screen and (max-width: 768px) {
@@ -69,7 +69,7 @@
     </div>
     <p class="cookie-text">En <strong>aucun cas</strong> vos données ne sont utilisées à des fins commerciales.</p>
     <div class="cookie-buttons">
-        <span class="cookie-link button bold" id="privacy-policy"><a href="#">Voir la politique de confidentialité</a></span>
-        <span class="cookie-link button thin" id="accept-cookies"><a href="accept_cookies.php?redirection=<?=$page_name?>">J'accepte - Poursuivre ma navigation</a></span>
+        <a href="#" class="button bold cookie-link" id="privacy-policy">Voir la politique de confidentialité</a>
+        <a href="accept_cookies.php?redirection=<?=$page_name?>" class="button thin cookie-link" id="accept-cookies">J'accepte - Poursuivre ma navigation</a>
     </div>
 </div>
