@@ -3,15 +3,23 @@
 require 'HTMLDisplay.php';
 
 class HTMLPlaceholder {
-    private string $pageName;
-    private array $displays;
+    private $pageName;
+    private $displays;
 
-    public function __construct($pageName, $displays) {
+    public function __construct($pageName, $displays = array()) {
         $this->pageName = $pageName . '.php';
         $this->displays = $displays;
+
+        if (!hasAcceptedCookies()) {
+            (new CookieDisplay('accept_cookies'))->display();
+        }
     }
 
-    public function display($key): void {
+    public function getPageName() {
+        return $this->pageName;
+    }
+
+    public function display($key) {
         foreach ($this->displays as $display) {
             if (strcasecmp($key, $display->getKey()) == 0) {
                 $display->display();
