@@ -1,13 +1,8 @@
-<?php 
-if (!(isset($_COOKIE['cookies_accepted']))) {
-    $page_name = 'index.php';
-    require_once('cookie.php');
-    echo '<style>
-    .to-blur {
-        filter: blur(5px);
-    }
-    </style>';
-}
+<?php
+require_once 'data_handling/HTMLPlaceholder.php';
+require_once 'common/common_functions.php';
+
+$display = new HTMLPlaceholder('index');
 ?>
 
 <!DOCTYPE html>
@@ -21,7 +16,7 @@ if (!(isset($_COOKIE['cookies_accepted']))) {
     <script src="https://kit.fontawesome.com/3198643e95.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <?php require_once 'header.php' ?>
+    <?php require_once 'header.php'; ?>
 
     <section id="landing-page">
         <article class="presentation">
