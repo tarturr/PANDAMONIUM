@@ -1,3 +1,15 @@
+<?php 
+if (!(isset($_COOKIE['cookies_accepted']))) {
+    $page_name = 'index.php';
+    require_once('cookie.php');
+    echo '<style>
+    .to-blur {
+        filter: blur(5px);
+    }
+    </style>';
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,27 +18,24 @@
     <title>PANDEMONIUM - Accueil</title>
     <link rel="stylesheet" href="assets/css/header-style.css">
     <link rel="stylesheet" href="assets/css/index-style.css">
-    <script src="https://kit.fontawesome.com/3198643e95.js" crossorigin="anonymous"></script>
 </head>
 <body>
+<div class="to-blur">
     <?php require_once 'header.php' ?>
 
     <section id="landing-page">
         <article class="presentation">
-            <div class="text">
-                <h1>Le réseau social des jeunes et étudiants.</h1>
-                <p>
-                    Créé en 2023, PANDEMONIUM est un réseau social utilisable par tous les lycéens souhaitant communiquer
-                    entre eux et avoir un profil professionnel !
-                </p>
-            </div>
+            <h1>Le réseau social des jeunes et étudiants.</h1>
+            <p>
+                Créé en 2023, PANDEMONIUM est un réseau social utilisable par tous les lycéens souhaitant communiquer
+                entre eux et avoir un profil professionnel !
+            </p>
 
-            <a href="#more" class="button thin">En savoir plus</a>
+            <a href="" class="bold btn">adazdazdaaaaaaaaaaaaaaaaaaaaa</a>
         </article>
 
         <img src="assets/img/jeunes.jpg" alt="Photo de jeunes sur leur écran.">
     </section>
-
-    <img src="assets/img/wave.png" alt="" class="wave">
+</div>
 </body>
 </html>
