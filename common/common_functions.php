@@ -12,6 +12,10 @@ function establishDatabaseConnection($host = '0504-srv-sig', $user = 'nsi_eleve1
     return $connection;
 }
 
+function hasAcceptedCookies() {
+    return isset($_COOKIE['cookies_accepted']);
+}
+
 function isLogged(): bool {
     return isset($_COOKIE['pseudo']);
 }
