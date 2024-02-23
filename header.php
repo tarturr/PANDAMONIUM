@@ -14,7 +14,7 @@ class NavbarDisplay extends HTMLDisplay {
     <?php }
 }
 
-$placeHolder = new HTMLPlaceholder('header', array(new NavbarDisplay('navbar')));
+$placeHolder = new HTMLPlaceholder('header', new NavbarDisplay('navbar'));
 ?>
 
 <header id="top-page">
