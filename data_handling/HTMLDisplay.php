@@ -35,6 +35,7 @@ class CookieDisplay extends HTMLDisplay {
     }
 
     protected function displayIfNotLogged() {
+        $pageName = $this->pageName;
         require_once 'cookie.php';
         ?>
 

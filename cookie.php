@@ -70,6 +70,6 @@
     <p class="cookie-text">En <strong>aucun cas</strong> vos données ne sont utilisées à des fins commerciales.</p>
     <div class="cookie-buttons">
         <a href="#" class="button bold cookie-link" id="privacy-policy">Voir la politique de confidentialité</a>
-        <a href="accept_cookies.php?redirection=<?=$page_name?>" class="button thin cookie-link" id="accept-cookies">J'accepte - Poursuivre ma navigation</a>
+        <a href="accept_cookies.php?redirection=<?= $pageName ?>" class="button thin cookie-link" id="accept-cookies">J'accepte - Poursuivre ma navigation</a>
     </div>
 </div>
