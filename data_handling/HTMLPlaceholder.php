@@ -12,7 +12,7 @@ class HTMLPlaceholder {
         $this->displays = $displays;
 
         if (!hasAcceptedCookies()) {
-            (new CookieDisplay('accept_cookies'))->display();
+            (new CookieDisplay($this->pageName))->display();
         }
     }
 
