@@ -34,6 +34,8 @@ $placeHolder = new HTMLPlaceholder('header', new NavbarDisplay('navbar'));
 
     <hr>
 
+    <button class="user-menu button bold"><i class="fa-solid fa-user"></i></button>
+
     <div class="account">
         <?php $placeHolder->display('navbar'); ?>
     </div>

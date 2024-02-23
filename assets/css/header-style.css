@@ -145,6 +145,10 @@ body {
     background-color: var(--dark-main);
 }
 
+#top-page .user-menu {
+    display: none;
+}
+
 #top-page .account {
     display: flex;
     align-items: center;
@@ -196,4 +200,34 @@ body {
 
 .button.thin:hover::after {
     width: 100%;
+}
+
+@media screen and (max-width: 1350px) {
+    #top-page {
+        width: 950px;
+        min-width: 5px;
+        background-color: red;
+    }
+    
+    #top-page .tool-bar .logo .logo-text {
+        display: none;
+    }
+
+    #top-page .user-menu {
+        width: 75px;
+        height: 75px;
+
+        display: block;
+        border: none;
+        align-self: center;
+    }
+
+    #top-page .account {
+        width: 50vw;
+        height: 100vh;
+
+        position: fixed;
+        right: 0;
+        background-color: blue;
+    }
 }
