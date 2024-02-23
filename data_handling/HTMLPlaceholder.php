@@ -1,12 +1,13 @@
 <?php
 
 require 'HTMLDisplay.php';
+require_once 'common/common_functions.php';
 
 class HTMLPlaceholder {
     private $pageName;
     private $displays;
 
-    public function __construct($pageName, $displays = array()) {
+    public function __construct($pageName, ...$displays) {
         $this->pageName = $pageName . '.php';
         $this->displays = $displays;
 
