@@ -2,8 +2,8 @@
 
 abstract class DatabaseColumn {
 
-    private PDO $connection;
-    private string $table;
+    private $connection;
+    private $table;
 
     protected function __construct($connection, $table) {
         $this->connection = $connection;
@@ -23,7 +23,7 @@ abstract class DatabaseColumn {
         }
     }
 
-    public final function update($data): bool {
+    public final function update($data) {
         if (count($data) == 0) return true;
 
         try {
@@ -38,7 +38,7 @@ abstract class DatabaseColumn {
         }
     }
 
-    private function buildUpdateRequest($data): string {
+    private function buildUpdateRequest($data) {
         $sqlRequest = 'UPDATE ' . $this->table . ' SET ';
         $left = count($data);
 
@@ -54,10 +54,10 @@ abstract class DatabaseColumn {
         return $sqlRequest;
     }
 
-    protected final function prepare($sqlRequest): PDOStatement {
+    protected final function prepare($sqlRequest) {
         return $this->connection->prepare($sqlRequest);
     }
 
     public static abstract function fetchFrom($connection, $column);
-    protected abstract function createImpl(): bool;
+    protected abstract function createImpl();
 }

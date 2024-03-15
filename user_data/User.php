@@ -3,14 +3,14 @@
 require 'Profile.php';
 
 class User extends DatabaseColumn {
-    public string $pseudo;
-    public string $email;
-    public string $motDePasse;
+    public $pseudo;
+    public $email;
+    public $motDePasse;
     public $dateNaiss;
     public $dateEnregistre;
     public $dateConnecte;
     public $listeAmis;
-    public ?Profile $profil;
+    public $profil;
 
     public function __construct($connection, $pseudo, $email, $motDePasse, $dateNaiss, $dateEnregistre, $dateConnecte, $listeAmis = array(), $profil = null) {
         parent::__construct($connection, "utilisateur");
@@ -25,7 +25,7 @@ class User extends DatabaseColumn {
         $this->profil = $profil;
     }
 
-    public static final function fetchFrom($connection, $column): ?User {
+    public static final function fetchFrom($connection, $column) {
         $sqlRequest = 'SELECT * FROM utilisateur WHERE pseudo = :pseudo';
         $query = $connection->prepare($sqlRequest);
 
@@ -50,7 +50,7 @@ class User extends DatabaseColumn {
         return null;
     }
 
-    protected final function createImpl(): bool {
+    protected final function createImpl() {
         $sqlRequest = 'INSERT INTO utilisateur VALUES(:pseudo, :email, :mot_de_passe, :date_naiss, :date_enregistre, :date_connecte, :liste_amis)';
         $request = $this->prepare($sqlRequest);
 
@@ -65,7 +65,7 @@ class User extends DatabaseColumn {
         ]);
     }
 
-    public function tryToConnect($password): bool {
+    public function tryToConnect($password) {
         if ($password == $this->motDePasse) {
             $this->update(['date_connecte' => (new DateTime('now'))->format('Y-m-d H:i:s')]);
             return true;

@@ -3,16 +3,16 @@
 require 'DatabaseColumn.php';
 
 class Profile extends DatabaseColumn {
-    public string $nom;
-    public string $prenom;
-    public string $description;
-    public string $qualites;
-    public string $defauts;
-    public string $emailPro;
-    public string $tel;
-    public string $disponibilites;
+    public $nom;
+    public $prenom;
+    public $description;
+    public $qualites;
+    public $defauts;
+    public $emailPro;
+    public $tel;
+    public $disponibilites;
 
-    private string $pseudo;
+    private $pseudo;
 
     public function __construct($connection, $nom, $prenom, $description, $qualites, $defauts, $emailPro, $tel, $disponibilites, $pseudo) {
         parent::__construct($connection, "profil");
@@ -29,7 +29,7 @@ class Profile extends DatabaseColumn {
     }
 
 
-    public static final function fetchFrom($connection, $column): ?Profile {
+    public static final function fetchFrom($connection, $column) {
         $sqlRequest = 'SELECT * FROM profil WHERE pseudo = :pseudo';
         $query = $connection->prepare($sqlRequest);
 
@@ -55,7 +55,7 @@ class Profile extends DatabaseColumn {
         return null;
     }
 
-    protected final function createImpl(): bool {
+    protected final function createImpl() {
         $sqlRequest = 'INSERT INTO profil VALUES(:nom, :prenom, :description, :qualites, :defauts, :email_pro, :tel, :disponibilites, :pseudo)';
         $request = $this->prepare($sqlRequest);
 
