@@ -3,7 +3,7 @@
 require '../user_data/User.php';
 require '../common/common_functions.php';
 
-$connection = establishDatabaseConnection('localhost', 'root', '');
+$connection = establishDatabaseConnection();
 
 $dateFormatter = 'Y-m-d H:i:s';
 $dateNow = new DateTime('now');

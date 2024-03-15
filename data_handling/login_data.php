@@ -3,7 +3,7 @@
 require '../user_data/User.php';
 require '../common/common_functions.php';
 
-$connection = establishDatabaseConnection('localhost', 'root', '');
+$connection = establishDatabaseConnection();
 
 $pseudo = $_POST['pseudo'];
 $mdp = $_POST['mdp'];
