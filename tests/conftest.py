@@ -14,4 +14,4 @@ def app():
 
 @pytest.fixture()
 def runner(app):
-    app.test_cli_runner()
+    yield app.test_cli_runner()
