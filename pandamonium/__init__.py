@@ -1,6 +1,8 @@
 from flask import Flask
 import os
 
+import yaml
+
 import pandamonium.commands as commands
 import pandamonium.db as db
 
@@ -8,9 +10,13 @@ import pandamonium.db as db
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+
+    with open(os.path.join(app.root_path, 'db_credentials.yml'), 'r') as db_credentials_file:
+        db_credentials = yaml.safe_load(db_credentials_file)
+
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'pandamonium.sqlite'),
+        DATABASE_CREDENTIALS=db_credentials,
     )
 
     if test_config is None:

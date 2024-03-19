@@ -22,3 +22,5 @@ def register_commands(app: Flask):
             click.echo('[PANDEMONIUM] Reset de la base de données effectué avec les valeurs par défaut.')
         else:
             click.echo('[PANDEMONIUM] Reset de la base de données effectué sans valeurs par défaut.')
+
+        db.close_db()

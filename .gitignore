@@ -12,3 +12,5 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+pandamonium/db_credentials.yml
