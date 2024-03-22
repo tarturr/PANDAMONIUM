@@ -13,8 +13,8 @@
 -- Structure de la table `utilisateur`
 --
 
-DROP TABLE IF EXISTS `utilisateur`;
-CREATE TABLE IF NOT EXISTS `utilisateur` (`pseudo` varchar(16) NOT NULL, `email` varchar(50) NOT NULL, `mot_de_passe` varchar(64) NOT NULL, `date_naiss` date NOT NULL, `date_enregistre` date NOT NULL, `date_connecte` date NOT NULL, `liste_amis` text, PRIMARY KEY (`pseudo`));
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (`username` varchar(16) NOT NULL, `email` varchar(50) NOT NULL, `password` varchar(64) NOT NULL, `date_of_birth` date NOT NULL, `registered_at` date NOT NULL, `logged_at` date NOT NULL, `friends` text, PRIMARY KEY (`username`));
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
