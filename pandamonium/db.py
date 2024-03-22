@@ -13,6 +13,7 @@ def get_db() -> PooledMySQLConnection | MySQLConnectionAbstract:
     :rtype: MySQLCursorAbstract"""
     if 'db' not in g:
         g.db = connector.connect(**current_app.config['DATABASE_CREDENTIALS'])
+        g.db.autocommit = True
 
         if g.db.is_connected():
             print('[PANDAMONIUM] Successfully connected to database!')
@@ -40,8 +41,6 @@ def init_db(set_default_values: bool):
         for sql_statement in sql_statements:
             print(f"Executing statement {sql_statement}")
             cursor.execute(sql_statement)
-
-    db.commit()
 
 
 def close_db(e=None):
