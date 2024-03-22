@@ -28,12 +28,20 @@ def init_db(set_default_values: bool):
 
     :param bool set_default_values: paramètre activant ou désactivant la création de valeurs par défaut dans la base de
     données."""
-    with current_app.open_resource('schema_dev.sql' if set_default_values else 'schema.sql') as schema:
-        db = get_db()
+    with current_app.open_resource('schema_dev.sql' if set_default_values else 'schema.sql') as resource:
+        sql_statements = filter(
+            lambda line: not (line.startswith('--') or line.startswith('/*') or not line.strip()),
+            resource.read().decode().split('\n')
+        )
 
-        with db.cursor() as cursor:
-            cursor.execute(schema.read().decode())
-            db.commit()
+    db = get_db()
+
+    with db.cursor() as cursor:
+        for sql_statement in sql_statements:
+            print(f"Executing statement {sql_statement}")
+            cursor.execute(sql_statement)
+
+    db.commit()
 
 
 def close_db(e=None):
