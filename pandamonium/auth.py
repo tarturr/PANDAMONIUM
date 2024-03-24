@@ -40,7 +40,7 @@ def register_page():
 @blueprint.route('/login', methods=('GET', 'POST'))
 def login_page():
     """Page de connexion du site web."""
-    if fk.fk.request.method == 'POST':
+    if fk.request.method == 'POST':
         identifier = fk.request.form['identifier']
         password = fk.request.form['password']
 
