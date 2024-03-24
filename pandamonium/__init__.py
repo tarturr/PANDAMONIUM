@@ -5,6 +5,7 @@ import yaml
 
 import pandamonium.commands as commands
 import pandamonium.db as db
+import pandamonium.auth as auth
 
 
 def create_app(test_config=None):
@@ -32,12 +33,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
-
     commands.register_commands(app)
     app.teardown_appcontext(db.close_db)
+    app.register_blueprint(auth.blueprint)
 
     return app
