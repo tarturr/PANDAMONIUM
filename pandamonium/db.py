@@ -1,10 +1,10 @@
 import flask as fk
 
 import mysql.connector as connector
-from mysql.connector.abstracts import MySQLConnectionAbstract
+import mysql.connector.abstracts as abstracts
 
 
-def get_db() -> MySQLConnectionAbstract:
+def get_db() -> abstracts.MySQLConnectionAbstract:
     """Crée une instance de Connection représentant la connexion à la base de données. Si la connexion n'a pas encore
     été établie, elle le devient. Sinon, elle est renvoyée telle quelle.
 
@@ -37,7 +37,6 @@ def init_db(set_default_values: bool):
 
     with db.cursor() as cursor:
         for sql_statement in sql_statements:
-            print(f"Executing statement {sql_statement}")
             cursor.execute(sql_statement)
 
 
