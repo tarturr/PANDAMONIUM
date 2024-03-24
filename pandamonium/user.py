@@ -1,5 +1,6 @@
-from datetime import datetime
 import flask as fk
+
+from datetime import datetime
 
 from pandamonium.db import get_db
 from pandamonium.security import check_password, date_from_string, date_to_string, fill_requirements, \
@@ -7,6 +8,8 @@ from pandamonium.security import check_password, date_from_string, date_to_strin
 
 
 class User:
+    """Classe représentant un utilisateur unique du site web."""
+
     def __init__(self,
                  username: str,
                  email: str,
@@ -14,6 +17,14 @@ class User:
                  date_of_birth: datetime,
                  friends: list[str] = [],
                  registered_at: datetime = datetime.now()):
+        """Constructeur de la classe User.
+
+        :param username: Nom de l'utilisateur.
+        :param email: Adresse mail de l'utilisateur.
+        :param password: Mot de passe de l'utilisateur.
+        :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet datetime.
+        :param friends: Liste d'amis de l'utilisateur.
+        :param registered_at: Date d'inscription de l'utilisateur, sous forme d'objet datetime."""
         self.username = username
         self.email = email
         self.password = password
@@ -24,6 +35,17 @@ class User:
 
     @classmethod
     def fetch_by(cls, username: str = '', email: str = ''):
+        """Crée une instance de User à partir du username ou de l'email renseigné (ignoré si le username est fourni). Ne
+        renvoie rien si l'utilisateur n'est pas trouvé en base de données avec l'identifiant fourni.
+
+        :param username: Nom de l'utilisateur.
+        :param email: Adresse mail de l'utilisateur.
+
+        :rtype: User | None
+        :return: Instance de la classe User si l'utilisateur existe en base de données avec l'identifiant fourni, sinon
+            None.
+
+        :raises ValueError: Si ni le username ni l'email ne sont fournis (ou qu'ils sont vides)."""
         if not (username or email):
             raise ValueError("Aucune valeur n'a été donnée pour récupérer un utilisateur dans la base de données. "
                              "Veuillez indiquer soit le username, soit l'email.")
@@ -49,18 +71,16 @@ class User:
 
     @classmethod
     def login(cls, password: str, username: str = '', email: str = ''):
-        """Fonction permettant d'instancier un utilisateur depuis la base de données via son username ou son email.
-        Si l'utilisateur existe en base de données, son mot de passe est aussi comparé à celui donné en argument.
+        """Crée une instance de User depuis la base de données via son username ou son email s'il y existe et que son
+        mot de passe correspond à celui donné en argument, sinon ne renvoie rien.
 
-        Si toutes les conditions sont remplies, la session est clear et la clé 'username' de la session prend la valeur
-        du pseudo de l'utilisateur, et une nouvelle instance de User est renvoyée, comportant toutes les données de
-        l'utilisateur recherché.
+        Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
 
-        :param username: nom de l'utilisateur.
-        :param email: l'email de l'utilisateur.
-        :param password: le mot de passe de l'utilisateur.
+        :param username: Nom de l'utilisateur.
+        :param email: Email de l'utilisateur.
+        :param password: Mot de passe de l'utilisateur.
         :rtype: User | None
-        :return: Une nouvelle instance de User si toutes les conditions sont remplies, sinon None."""
+        :return: Instance de User si toutes les conditions sont remplies, sinon None."""
         identifier = username if not username else email
 
         if not (fill_requirements(username=username, password=password)
@@ -80,6 +100,10 @@ class User:
         return None
 
     def exists(self) -> bool:
+        """Vérifie si l'utilisateur courant existe en base de données ou non.
+
+        :rtype: bool
+        :return: True si l'utilisateur existe en base de données, sinon False."""
         db = get_db()
 
         with db.cursor() as cursor:
@@ -97,6 +121,20 @@ class User:
                date_of_birth: datetime = None,
                add_friends: list[str] = [],
                remove_friends: list[str] = []):
+        """Met à jour les données de l'utilisateur actuel en changeant uniquement les paramètres fournis.
+        La date de connexion est automatiquement mise à celle de l'exécution de cette méthode.
+
+        Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
+
+        :param username: Nom de l'utilisateur.
+        :param email: Adresse mail de l'utilisateur.
+        :param password: Mot de passe de l'utilisateur.
+        :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet datetime.
+        :param add_friends: Amis à ajouter à la liste d'amis de l'utilisateur.
+        :param remove_friends: Amis à supprimer de la liste d'amis de l'utilisateur.
+
+        :raise ValueError: Si l'utilisateur n'existe pas en base de données ou si aucune donnée n'a été fournie en
+            arguments."""
         if not self.exists():
             raise ValueError(f"Une requête UPDATE tente d'être exécutée pour l'utilisateur {self.username} qui "
                              f"n'existe pourtant pas dans la base de données. Utilisez la méthode User.exists() "
@@ -156,6 +194,9 @@ class User:
             self.username = new_username
 
     def create(self):
+        """Crée l'utilisateur actuel en base de données.
+
+        Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security."""
         if not (User.fetch_by(username=self.username) is None and User.fetch_by(email=self.email) is None):
             return set_security_error(
                 f"Un utilisateur avec l'identifiant '{self.username if self.username else self.email}'"
@@ -184,5 +225,6 @@ class User:
         self.create_session()
 
     def create_session(self):
+        """Initialise une nouvelle session à partir de l'utilisateur actuel."""
         fk.session.clear()
         fk.session['username'] = self.username

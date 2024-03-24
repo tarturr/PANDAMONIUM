@@ -10,6 +10,8 @@ blueprint = fk.Blueprint('auth', __name__, url_prefix='/auth')
 
 @blueprint.before_app_request
 def load_user():
+    """Fonction qui charge les données de l'utilisateur à partir de son nom stocké dans la session du client. Celle-ci
+    s'exécute avant de charger une quelconque page du blueprint courant."""
     username = fk.session.get('username')
 
     if username is None:
@@ -20,6 +22,7 @@ def load_user():
 
 @blueprint.route('/register', methods=('GET', 'POST'))
 def register_page():
+    """Page d'inscription du site web."""
     if fk.request.method == 'POST':
         username = fk.request.form['username']
         email = fk.request.form['email']
@@ -56,5 +59,6 @@ def login_page():
 
 @blueprint.route('/logout')
 def logout_page():
+    """Page dont l'usage unique est de déconnecter l'utilisateur du site web."""
     fk.session.clear()
     return fk.redirect(fk.url_for('index'))

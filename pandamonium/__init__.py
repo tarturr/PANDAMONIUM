@@ -1,15 +1,19 @@
 from flask import Flask
+
 import os
-
 import yaml
+import typing
 
-import pandamonium.commands as commands
-import pandamonium.db as db
-import pandamonium.auth as auth
+from pandamonium.auth import blueprint
+from pandamonium.db import close_db
 
 
-def create_app(test_config=None):
-    # create and configure the app
+def create_app(test_config: typing.Mapping[str, typing.Any] = None):
+    """Fonction de création de l'application Flask avec la possibilité de définir une configuration spécifique durant
+    la phase de test. Si elle n'est pas fournie, alors Flask va chercher le fichier de configuration par défaut,
+    config.yml, qui n'existe pour le moment pas.
+
+    :param test_config: Configuration de test de l'application."""
     app = Flask(__name__, instance_relative_config=True)
 
     with app.open_resource('db_credentials.yml') as db_credentials_file:
@@ -21,20 +25,16 @@ def create_app(test_config=None):
     )
 
     if test_config is None:
-        # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
     else:
-        # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
 
-    commands.register_commands(app)
-    app.teardown_appcontext(db.close_db)
-    app.register_blueprint(auth.blueprint)
+    app.teardown_appcontext(close_db)
+    app.register_blueprint(blueprint)
 
     return app
