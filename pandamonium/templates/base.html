@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PANDEMONIUM - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header-style.css') }}">
+    <script src="https://kit.fontawesome.com/3198643e95.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/header-dynamic.js') }}" defer></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header id="top-page">
+        <div class="tool-bar">
+            <a class="logo" href="/">
+                <img src="{{ url_for('static', filename='img/logo-no-icon.png') }}" class="logo-text" alt="Logo de PANDEMONIUM sans l'icône">
+                <img src="{{ url_for('static', filename='img/icon.png') }}" class="logo-icon" alt="Icône du logo PANDEMONIUM">
+            </a>
+
+            <nav id="tools">
+                <a href="#">Qui sommes-nous ?</a>
+                <a href="#">Nouveautés</a>
+                <a href="#">Personnes</a>
+                <a href="#">Serveurs populaires</a>
+            </nav>
+        </div>
+
+        <hr>
+
+        <button class="user-menu button bold"><i class="fa-solid fa-user"></i></button>
+
+        <div class="account">
+            {% if g.user %}
+                <a href="#" class="button thin"><i class="fa-solid fa-user"></i> {{ g.user.username }}</a>
+                <a href="/auth/logout" class="button bold">Se déconnecter <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+            {% else %}
+                <a href="/auth/login" class="button bold"><i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter</a>
+                <a href="/auth/register" class="button thin"><i class="fa-solid fa-user-plus"></i> S'enregistrer</a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% block body %}{% endblock %}
+</body>
+</html>
