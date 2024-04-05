@@ -1,3 +1,5 @@
+import functools
+
 import flask as fk
 
 from pandamonium.security import get_security_error, date_from_string, is_security_error
@@ -62,3 +64,18 @@ def logout_page():
     """Page dont l'usage unique est de déconnecter l'utilisateur du site web."""
     fk.session.clear()
     return fk.redirect(fk.url_for('index'))
+
+
+def login_required(view):
+    """Décorateur de view servant à rediriger l'utilisateur vers la page de connexion si ce dernier n'est pas encore
+    connecté ou enregistré sur le site web.
+
+    :param view: La fonction servant de view à la page web."""
+    @functools.wraps(view)
+    def view_wrapper(*args, **kwargs):
+        if fk.g.user is None:
+            return fk.redirect(fk.url_for('index'))
+
+        return view(*args, **kwargs)
+
+    return view_wrapper
