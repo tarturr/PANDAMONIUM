@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index-style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <section id="landing-page">
+        <article class="presentation">
+            <div class="text">
+                <h1>Le réseau social des jeunes et étudiants.</h1>
+                <p>
+                    Créé en 2023, PANDEMONIUM est un réseau social utilisable par tous les lycéens souhaitant communiquer
+                    entre eux et avoir un profil professionnel !
+                </p>
+            </div>
+
+            <a href="#more" class="button thin">En savoir plus</a>
+        </article>
+
+        <img src="{{ url_for('static', filename='img/jeunes.jpg') }}" alt="Photo de jeunes sur leur écran.">
+    </section>
+
+    <img src="{{ url_for('static', filename='img/wave.png') }}" alt="Séparateur de section" class="wave">
+{% endblock %}
