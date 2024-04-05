@@ -209,7 +209,7 @@ class User:
                 'INSERT INTO users ('
                 '    username, email, password, date_of_birth, friends, logged_at, registered_at'
                 ') VALUES ('
-                '    %s, %s, %s, %s, %s, %s, %s)'
+                '    %s, %s, %s, %s, %s, %s, %s'
                 ')',
                 (
                     self.username,
