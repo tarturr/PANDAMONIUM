@@ -5,6 +5,7 @@ import yaml
 import typing
 
 from pandamonium.auth import blueprint
+from pandamonium.commands import register_commands
 from pandamonium.db import close_db
 
 
@@ -34,6 +35,7 @@ def create_app(test_config: typing.Mapping[str, typing.Any] = None):
     except OSError:
         pass
 
+    register_commands(app)
     app.teardown_appcontext(close_db)
     app.register_blueprint(blueprint)
 
