@@ -1,4 +1,4 @@
-from flask import Flask
+import flask as fk
 
 import os
 import yaml
@@ -15,7 +15,7 @@ def create_app(test_config: typing.Mapping[str, typing.Any] = None):
     config.yml, qui n'existe pour le moment pas.
 
     :param test_config: Configuration de test de l'application."""
-    app = Flask(__name__, instance_relative_config=True)
+    app = fk.Flask(__name__, instance_relative_config=True)
 
     with app.open_resource('db_credentials.yml') as db_credentials_file:
         db_credentials = yaml.safe_load(db_credentials_file)
@@ -38,5 +38,9 @@ def create_app(test_config: typing.Mapping[str, typing.Any] = None):
     register_commands(app)
     app.teardown_appcontext(close_db)
     app.register_blueprint(blueprint)
+
+    @app.route('/')
+    def index():
+        return fk.render_template('index.html')
 
     return app
