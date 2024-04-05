@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Se connecter{% endblock %}
+
+{% block body %}
+    <h1>Se connecter à PANDAMONIUM</h1>
+
+    <form method="POST" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
+        <input name="pseudo" type="text" placeholder="Entrez votre pseudo ou votre email" required>
+        <input name="mdp" type="password" placeholder="Entrez votre mot de passe" required>
+        <input type="submit" placeholder="Se connecter">
+    </form>
+{% endblock %}
