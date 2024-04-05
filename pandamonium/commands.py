@@ -23,8 +23,8 @@ def reset_db(dev: bool):
     init_db(set_default_values=dev)
 
     if dev:
-        click.echo('[PANDEMONIUM] Reset de la base de données effectué avec les valeurs par défaut.')
+        click.echo('[PANDAMONIUM] Reset de la base de données effectué avec les valeurs par défaut.')
     else:
-        click.echo('[PANDEMONIUM] Reset de la base de données effectué sans valeurs par défaut.')
+        click.echo('[PANDAMONIUM] Reset de la base de données effectué sans valeurs par défaut.')
 
     close_db()
