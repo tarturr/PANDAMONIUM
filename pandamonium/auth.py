@@ -8,8 +8,6 @@ from pandamonium.user import User
 blueprint = fk.Blueprint('auth', __name__, url_prefix='/auth')
 
 
-# TODO: Create template for these pages.
-
 @blueprint.before_app_request
 def load_user():
     """Fonction qui charge les données de l'utilisateur à partir de son nom stocké dans la session du client. Celle-ci
@@ -39,7 +37,7 @@ def register_page():
         else:
             return fk.redirect(fk.url_for('index'))
 
-    return '<p>Register</p>'
+    return fk.render_template('register.html')
 
 
 @blueprint.route('/login', methods=('GET', 'POST'))
@@ -56,7 +54,7 @@ def login_page():
         else:
             fk.redirect(fk.url_for('index'))
 
-    return '<p>Login</p>'
+    return fk.render_template('login.html')
 
 
 @blueprint.route('/logout')
