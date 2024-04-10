@@ -7,6 +7,17 @@ from pandamonium.security import check_password, date_from_string, date_to_strin
     set_security_error
 
 
+column_indexes = {
+    'username': 0,
+    'email': 1,
+    'password': 2,
+    'date_of_birth': 3,
+    'registered_at': 4,
+    'logged_at': 5,
+    'friends': 6
+}
+
+
 class User:
     """Classe représentant un utilisateur unique du site web."""
 
@@ -50,23 +61,26 @@ class User:
             raise ValueError("Aucune valeur n'a été donnée pour récupérer un utilisateur dans la base de données. "
                              "Veuillez indiquer soit le username, soit l'email.")
 
+        if not (fill_requirements(username=username) or fill_requirements(email=email)):
+            return None
+
         db = get_db()
 
         with db.cursor() as cursor:
             if username:
-                cursor.execute('SELECT * FROM users WHERE username = %s', username)
+                cursor.execute('SELECT * FROM users WHERE username = %s', [username])
             else:
-                cursor.execute('SELECT * FROM users WHERE email = %s', email)
+                cursor.execute('SELECT * FROM users WHERE email = %s', [email])
 
             user = cursor.fetchone()
 
             return cls(
-                user['username'],
-                user['email'],
-                user['password'],
-                date_from_string(user['date_of_birth']),
-                user['friends'].split(","),
-                date_from_string(user['registered_at']),
+                user[column_indexes['username']],
+                user[column_indexes['email']],
+                user[column_indexes['password']],
+                user[column_indexes['date_of_birth']],
+                user[column_indexes['friends']].split(","),
+                user[column_indexes['registered_at']],
             ) if user else None
 
     @classmethod
@@ -144,6 +158,13 @@ class User:
             raise ValueError(f"Une requête UPDATE ne peut pas être exécutée si aucun changement de valeur n'est "
                              f"exécuté dans la base de données.")
 
+        if not fill_requirements(
+                username=self.username,
+                email=self.email,
+                password=self.password,
+                date_of_birth=self.date_of_birth):
+            return
+
         request = 'UPDATE users SET logged_at = %s'
         values = [date_to_string(datetime.now())]
         new_username = self.username
@@ -201,6 +222,13 @@ class User:
             return set_security_error(
                 f"Un utilisateur avec l'identifiant '{self.username if self.username else self.email}'"
             )
+
+        if not fill_requirements(
+                username=self.username,
+                email=self.email,
+                password=self.password,
+                date_of_birth=self.date_of_birth):
+            return
 
         db = get_db()
 
