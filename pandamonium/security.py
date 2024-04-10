@@ -1,7 +1,7 @@
 import hashlib as hl
 import re
 import flask as fk
-from datetime import datetime
+from datetime import datetime, date
 
 
 def fill_requirements(**identifiers) -> bool:
@@ -13,22 +13,26 @@ def fill_requirements(**identifiers) -> bool:
     :return: True si tous les exigences attendues sont remplies, sinon False.
     :raise ValueError: Exception levée si et seulement si une clé rentrée est inexistante."""
     for identifier in identifiers:
+        value = identifiers[identifier]
+
         match identifier:
             case 'username':
-                if re.fullmatch('^[a-zA-Z0-9_-]{3,16}$', identifiers[identifier]) is None:
+                if re.match('^[\\w\\.-]{3,16}$', value) is None:
                     set_security_error("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques "
-                                       "pouvant contenir des traits d'union (-) ou des underscores (_).")
+                                       "pouvant contenir des tirets (-), des points (.) ou des underscores (_).")
                     return False
             case 'email':
-                if re.fullmatch('^\\w+@\\w.\\w$', identifiers[identifier]) is None:
+                if re.fullmatch('^[\\w\\.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', value) is None:
                     set_security_error("Le format de votre adresse email est invalide.")
                     return False
             case 'password':
-                if len(identifiers[identifier]) < 6:
-                    set_security_error("Votre mot de passe doit faire au minimum 6 caractères.")
+                pw_len = len(value)
+
+                if pw_len < 6 or pw_len > 64:
+                    set_security_error("Votre mot de passe doit faire entre 6 et 64 caractères.")
                     return False
             case 'date_of_birth':
-                if identifiers[identifier].year > datetime.now().year - 15:
+                if (datetime.now() - value).days < 15 * 365:
                     set_security_error("Vous êtes trop jeune pour inscrire sur PANDAMONIUM.")
                     return False
             case _:
