@@ -38,6 +38,8 @@ def fill_requirements(**identifiers) -> bool:
             case _:
                 raise ValueError(f"L'identificateur {identifier} est inconnu.")
 
+    return True
+
 
 def set_security_error(message: str):
     """Crée un message d'erreur inséré dans le cache d'erreur du module security.
