@@ -2,6 +2,8 @@ import flask as fk
 
 from datetime import datetime
 
+from mysql.connector import IntegrityError
+
 from pandamonium.db import get_db
 from pandamonium.security import check_password, date_from_string, date_to_string, fill_requirements, \
     set_security_error
@@ -218,11 +220,6 @@ class User:
         """Crée l'utilisateur actuel en base de données.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security."""
-        if not (User.fetch_by(username=self.username) is None and User.fetch_by(email=self.email) is None):
-            return set_security_error(
-                f"Un utilisateur avec l'identifiant '{self.username if self.username else self.email}'"
-            )
-
         if not fill_requirements(
                 username=self.username,
                 email=self.email,
@@ -233,24 +230,30 @@ class User:
         db = get_db()
 
         with db.cursor() as cursor:
-            cursor.execute(
-                'INSERT INTO users ('
-                '    username, email, password, date_of_birth, friends, logged_at, registered_at'
-                ') VALUES ('
-                '    %s, %s, %s, %s, %s, %s, %s'
-                ')',
-                (
-                    self.username,
-                    self.email,
-                    self.password,
-                    self.date_of_birth,
-                    ','.join(self.friends),
-                    self.logged_at,
-                    self.registered_at
+            try:
+                cursor.execute(
+                    'INSERT INTO users ('
+                    '    username, email, password, date_of_birth, friends, logged_at, registered_at'
+                    ') VALUES ('
+                    '    %s, %s, %s, %s, %s, %s, %s'
+                    ')',
+                    (
+                        self.username,
+                        self.email,
+                        self.password,
+                        self.date_of_birth,
+                        ','.join(self.friends),
+                        self.logged_at,
+                        self.registered_at
+                    )
                 )
-            )
 
-        self.create_session()
+                self.create_session()
+            except IntegrityError:
+                set_security_error(
+                    f"Un utilisateur avec l'identifiant '{self.username if self.username else self.email}' existe déjà "
+                    f"en base de données."
+                )
 
     def create_session(self):
         """Initialise une nouvelle session à partir de l'utilisateur actuel."""
