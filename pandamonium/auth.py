@@ -30,7 +30,6 @@ def register_page():
         date_of_birth = fk.request.form['date_of_birth']
 
         user = User(username, email, password, date_from_string(date_of_birth))
-        user.create()
 
         if is_security_error():
             fk.flash(get_security_error())
