@@ -1,7 +1,7 @@
 import hashlib as hl
 import re
 import flask as fk
-from datetime import datetime, date
+from datetime import datetime
 
 
 def fill_requirements(**identifiers) -> bool:
@@ -17,12 +17,12 @@ def fill_requirements(**identifiers) -> bool:
 
         match identifier:
             case 'username':
-                if re.match('^[\\w\\.-]{3,16}$', value) is None:
+                if re.match('^[\\w.-]{3,16}$', value) is None:
                     set_security_error("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques "
                                        "pouvant contenir des tirets (-), des points (.) ou des underscores (_).")
                     return False
             case 'email':
-                if re.fullmatch('^[\\w\\.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', value) is None:
+                if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', value) is None:
                     set_security_error("Le format de votre adresse email est invalide.")
                     return False
             case 'password':
