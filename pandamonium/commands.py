@@ -2,7 +2,7 @@ import flask as fk
 
 import click
 
-from pandamonium.db import close_db, init_db
+from pandamonium.database import close_db, init_db
 
 
 def register_commands(app: fk.Flask):

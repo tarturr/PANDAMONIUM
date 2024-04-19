@@ -6,7 +6,7 @@ import typing
 
 from pandamonium.auth import blueprint
 from pandamonium.commands import register_commands
-from pandamonium.db import close_db
+from pandamonium.database import close_db
 
 
 def create_app(test_config: typing.Mapping[str, typing.Any] = None):

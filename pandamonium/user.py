@@ -4,7 +4,7 @@ from datetime import datetime
 
 from mysql.connector import IntegrityError
 
-from pandamonium.db import get_db
+from pandamonium.database import get_db
 from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error
 
 
