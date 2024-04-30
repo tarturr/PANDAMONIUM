@@ -1,6 +1,6 @@
 import flask as fk
 
-from datetime import datetime
+from datetime import datetime, date
 
 from mysql.connector import IntegrityError
 
@@ -30,9 +30,9 @@ class User:
                  username: str,
                  email: str,
                  password: str,
-                 date_of_birth: datetime,
+                 date_of_birth: date,
                  friends: list[str] = None,
-                 registered_at: datetime = datetime.now()):
+                 registered_at: date = datetime.now().date()):
         """Constructeur de la classe User. Crée automatiquement le nouvel utilisateur en base de données.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
@@ -48,7 +48,7 @@ class User:
         self.password = password
         self.date_of_birth = date_of_birth
         self.friends = friends if friends else []
-        self.logged_at = datetime.now()
+        self.logged_at = datetime.now().date()
         self.registered_at = registered_at
 
         if not fill_requirements(

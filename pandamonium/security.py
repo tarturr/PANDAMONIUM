@@ -1,7 +1,7 @@
 import hashlib as hl
 import re
 import flask as fk
-from datetime import datetime
+from datetime import datetime, date
 
 
 def fill_requirements(**identifiers) -> bool:
@@ -32,7 +32,7 @@ def fill_requirements(**identifiers) -> bool:
                     set_security_error("Votre mot de passe doit faire entre 6 et 64 caractères.")
                     return False
             case 'date_of_birth':
-                if (datetime.now() - value).days < 15 * 365:
+                if (datetime.now().date() - value).days < 15 * 365.25:
                     set_security_error("Vous êtes trop jeune pour inscrire sur PANDAMONIUM.")
                     return False
             case _:
@@ -84,19 +84,19 @@ def check_password(password: str, hashed_password: str) -> bool:
     return hash_password(password) == hashed_password
 
 
-def date_from_string(date: str) -> datetime:
+def date_from_string(str_date: str) -> date:
     """Fonction convertissant une date sous forme de chaîne de caractères au format YYYY-MM-DD vers un objet datetime.
 
-    :param date: La date au format YYYY-MM-DD.
+    :param str_date: La date au format YYYY-MM-DD.
     :rtype datetime
     :return: Une nouvelle instance de datetime correspondant à la date donnée en argument."""
-    return datetime.strptime(date, '%Y-%m-%d')
+    return datetime.strptime(str_date, '%Y-%m-%d').date()
 
 
-def date_to_string(date: datetime) -> str:
+def date_to_string(date_instance: date) -> str:
     """Fonction convertissant un objet datetime vers une chaîne de caractères au format YYYY-MM-DD.
 
-    :param date: L'objet datetime.
+    :param date_instance: L'objet datetime.
     :rtype str
     :return: Une chaîne de caractères au format YYYY-MM-DD correspondant à la date donnée en argument."""
-    return datetime.strftime(date, '%Y-%m-%d')
+    return datetime.strftime(date_instance, '%Y-%m-%d')
