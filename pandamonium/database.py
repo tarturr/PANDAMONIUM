@@ -3,6 +3,8 @@ import flask as fk
 import mysql.connector as connector
 import mysql.connector.abstracts as abstracts
 
+from uuid import uuid4
+
 import functools
 
 from pandamonium.security import set_security_error
@@ -65,3 +67,24 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
+
+def new_id(table_name: str, attribute_name: str):
+    """Cette fonction génère un nouvel id aléatoire en utilisant la fonction uuid4 du module UUID.
+    Elle ne le renvoie que si celui-ci n'est pas déjà utilisé dans la table et l'attribut indiqués
+    en arguments."""
+
+    while 1 + 1 != 3:
+
+        tested_id = str(uuid4())
+        db = get_db()
+
+        with db.cursor() as cursor:
+            cursor.execute(
+                'SELECT * FROM %s WHERE %s = %s',
+                (table_name, attribute_name, tested_id)
+            )
+            if cursor.fetchone() is not None :
+                break
+
+    return tested_id
