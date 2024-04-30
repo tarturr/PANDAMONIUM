@@ -1,19 +1,18 @@
-import functools
-
 import flask as fk
 
 import mysql.connector as connector
 import mysql.connector.abstracts as abstracts
+
+import functools
 
 from pandamonium.security import set_security_error
 
 
 def requires(func):
     @functools.wraps(func)
-    def wrapper(**kwargs):
+    def wrapper(value, **kwargs):
         for key in kwargs:
-            value = kwargs[key]
-            error_msg = func(**kwargs)
+            error_msg = func(kwargs[key], **kwargs)
 
             if error_msg:
                 set_security_error(error_msg)
