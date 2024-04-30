@@ -5,8 +5,7 @@ from datetime import datetime, date
 from mysql.connector import IntegrityError
 
 from pandamonium.database import get_db
-from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error
-
+from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error, hash_password
 
 column_indexes = {
     'username': 0,
@@ -45,7 +44,7 @@ class User:
         :param registered_at: Date d'inscription de l'utilisateur, sous forme d'objet datetime."""
         self.username = username
         self.email = email
-        self.password = password
+        self.password = hash_password(password)
         self.date_of_birth = date_of_birth
         self.friends = friends if friends else []
         self.logged_at = datetime.now().date()
@@ -125,25 +124,30 @@ class User:
             ) if user else None
 
     @classmethod
-    def login(cls, password: str, username: str = '', email: str = ''):
+    def login(cls, identifier: str, password: str):
         """Crée une instance de User depuis la base de données via son username ou son email s'il y existe et que son
         mot de passe correspond à celui donné en argument, sinon ne renvoie rien.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
 
-        :param username: Nom de l'utilisateur.
-        :param email: Email de l'utilisateur.
+        :param identifier: Identifiant de l'utilisateur (username ou email).
         :param password: Mot de passe de l'utilisateur.
         :rtype: User | None
         :return: Instance de User si toutes les conditions sont remplies, sinon None."""
-        identifier = username if not username else email
 
-        if not (fill_requirements(password=password) and
-                (fill_requirements(username=username, password=password) or
-                 fill_requirements(email=email, password=password))):
+        user = None
+
+        if fill_requirements(password=password):
+            if fill_requirements(username=identifier):
+                user = User.fetch_by(username=identifier)
+            elif fill_requirements(email=identifier):
+                user = User.fetch_by(email=identifier)
+            else:
+                set_security_error(f"L'identifiant {identifier} est invalide.")
+                return None
+        else:
+            set_security_error("Votre mot de passe doit faire entre 6 et 64 caractères.")
             return None
-
-        user = User.fetch_by(username=username, email=email)
 
         if user is not None:
             if check_password(password, user.password):
@@ -151,6 +155,7 @@ class User:
                 return user
             else:
                 set_security_error(f"Mot de passe incorrect pour l'identifiant {identifier}.")
+                return None
 
         set_security_error(f"Aucun utilisateur trouvé avec l'identifiant {identifier}.")
         return None
