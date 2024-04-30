@@ -4,7 +4,7 @@ import os
 import yaml
 import typing
 
-from pandamonium.auth import blueprint
+from pandamonium import auth
 from pandamonium.commands import register_commands
 from pandamonium.database import close_db
 
@@ -37,10 +37,13 @@ def create_app(test_config: typing.Mapping[str, typing.Any] = None):
 
     register_commands(app)
     app.teardown_appcontext(close_db)
-    app.register_blueprint(blueprint)
+    app.register_blueprint(auth.blueprint)
 
     @app.route('/')
     def index():
-        return fk.render_template('index.html')
+        if 'username' in fk.session :
+            return fk.render_template('logged_in_index.html') # afficher le feed*
+        else :
+            return fk.render_template('index.html')
 
     return app
