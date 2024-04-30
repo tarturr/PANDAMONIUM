@@ -31,11 +31,11 @@
 
         <div class="account">
             {% if g.user %}
-                <a href="#" class="button thin"><i class="fa-solid fa-user"></i> {{ g.user.username }}</a>
+                <a href="#" class="button thin"><i class="fa-solid fa-user"></i>{{ g.user.username }}</a>
                 <a href="/auth/logout" class="button bold">Se déconnecter <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
             {% else %}
-                <a href="/auth/login" class="button bold"><i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter</a>
-                <a href="/auth/register" class="button thin"><i class="fa-solid fa-user-plus"></i> S'enregistrer</a>
+                <a href="/auth/login" class="button bold"><i class="fa-solid fa-arrow-right-to-bracket"></i>Se connecter</a>
+                <a href="/auth/register" class="button thin"><i class="fa-solid fa-user-plus"></i>S'enregistrer</a>
             {% endif %}
         </div>
     </header>
