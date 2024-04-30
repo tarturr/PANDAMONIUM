@@ -12,8 +12,8 @@ column_indexes = {
     'email': 1,
     'password': 2,
     'date_of_birth': 3,
-    'registered_at': 4,
-    'logged_at': 5,
+    'registration_date': 4,
+    'last_connection_date': 5,
     'friends': 6
 }
 
@@ -31,7 +31,7 @@ class User:
                  password: str,
                  date_of_birth: date,
                  friends: list[str] = None,
-                 registered_at: date = datetime.now().date()):
+                 registration_date: date = datetime.now().date()):
         """Constructeur de la classe User. Crée automatiquement le nouvel utilisateur en base de données.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
@@ -41,14 +41,14 @@ class User:
         :param password: Mot de passe de l'utilisateur.
         :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet datetime.
         :param friends: Liste d'amis de l'utilisateur.
-        :param registered_at: Date d'inscription de l'utilisateur, sous forme d'objet datetime."""
+        :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet datetime."""
         self.username = username
         self.email = email
         self.password = hash_password(password)
         self.date_of_birth = date_of_birth
         self.friends = friends if friends else []
-        self.logged_at = datetime.now().date()
-        self.registered_at = registered_at
+        self.last_connection_date = datetime.now().date()
+        self.registration_date = registration_date
 
         if not fill_requirements(
                 username=self.username,
@@ -63,7 +63,7 @@ class User:
             try:
                 cursor.execute(
                     'INSERT INTO users ('
-                    '    username, email, password, date_of_birth, friends, logged_at, registered_at'
+                    '    username, email, password, date_of_birth, friends, last_connection_date, registration_date'
                     ') VALUES ('
                     '    %s, %s, %s, %s, %s, %s, %s'
                     ')',
@@ -73,8 +73,8 @@ class User:
                         self.password,
                         self.date_of_birth,
                         ','.join(self.friends),
-                        self.logged_at,
-                        self.registered_at
+                        self.last_connection_date,
+                        self.registration_date
                     )
                 )
 
@@ -120,7 +120,7 @@ class User:
                 user[column_indexes['password']],
                 user[column_indexes['date_of_birth']],
                 user[column_indexes['friends']].split(","),
-                user[column_indexes['registered_at']],
+                user[column_indexes['registration_date']],
             ) if user else None
 
     @classmethod
@@ -188,7 +188,7 @@ class User:
                 date_of_birth=self.date_of_birth):
             return
 
-        request = 'UPDATE users SET logged_at = %s'
+        request = 'UPDATE users SET last_connection_date = %s'
         values = [date_to_string(datetime.now())]
         new_username = self.username
 
