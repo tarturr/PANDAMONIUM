@@ -46,12 +46,12 @@ def login_page():
         identifier = fk.request.form['identifier']
         password = fk.request.form['password']
 
-        user = User.login(username=identifier, password=password)
+        user = User.login(identifier=identifier, password=password)
 
         if user is None:
             fk.flash(get_security_error())
         else:
-            fk.redirect(fk.url_for('index'))
+            return fk.redirect(fk.url_for('index'))
 
     return fk.render_template('login.html')
 
