@@ -3,11 +3,82 @@ import flask as fk
 import mysql.connector as connector
 import mysql.connector.abstracts as abstracts
 
-from uuid import uuid4
+import abc
 
 import functools
 
 from pandamonium.security import set_security_error
+
+
+class Column:
+    """Classe représentant un 'filtre' spécifique face à une valeur donnée d'une colonne d'une table quelconque."""
+
+    def __init__(self, name: str, value, index: int, constraint=lambda val: None):
+        """Constructeur de la classe.
+
+        :param name: Colonne visée par le filtre.
+        :param value: Valeur de la colonne.
+        :param index: Index de la colonne par rapport à sa table (débute à 0).
+        :param constraint: Filtre (lambda avec single param) qui sera utilisé sur les données à tester."""
+        self.name = name
+        self.value = value
+        self.index = index
+        self.__constraint = constraint
+
+    def value_fits(self, value) -> bool:
+        """Méthode vérifiant si la valeur donnée est valide pour la colonne actuelle.
+        Si ce n'est pas le cas, l'erreur obtenue est insérée dans le gestionnaire d'erreur de l'application.
+
+        :param value: Valeur à essayer."""
+        message = self.__constraint(value)
+
+        if message is not None:
+            set_security_error(message)
+            return False
+
+        return True
+
+
+class Entity(abc.ABC):
+    """Classe représentant une table de la base de données dont les instances ont besoin d'être différenciée des autres
+    par un UUID."""
+
+    def __init__(self, name: str, columns: list[Column]):
+        """Constructeur de la classe.
+
+        :param name: Nom de la table.
+        :param columns: Liste des colonnes de la table."""
+        self.name = name
+        self.columns = columns
+
+    @classmethod
+    @abc.abstractmethod
+    def instant(cls):
+        pass
+
+    @classmethod
+    @abc.abstractmethod
+    def fetch_by(cls):
+        pass
+
+    def update(self, **values):
+        """Méthode permettant de mettre à jour certaines valeurs de l'instance de la table actuelle.
+
+        :param values: Paires de clés-valeurs à assigner aux colonnes, où la clé est le nom de la colonne attachée à
+            sa valeur."""
+        for key, value in values.items():
+            if not list(filter(lambda col: col.name == key, self.columns)):
+                raise ValueError(f"La colonne '{key}' n'existe pas dans la table {self.name}.")
+
+        self._update(**values)
+
+    @abc.abstractmethod
+    def _update(self, **values):
+        """Méthode permettant de mettre à jour certaines valeurs de l'instance de la table actuelle.
+        Cette méthode ne doit être utilisée que par les classes filles, qui doivent la redéfinir.
+
+        :param values: Nouvelles valeurs à attribuer aux colonnes de la table."""
+        pass
 
 
 def requires(func):
