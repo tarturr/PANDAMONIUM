@@ -100,3 +100,17 @@ def date_to_string(date_instance: date) -> str:
     :rtype str
     :return: Une chaîne de caractères au format YYYY-MM-DD correspondant à la date donnée en argument."""
     return datetime.strftime(date_instance, '%Y-%m-%d')
+
+
+def uuid_split(uuid_chain: str) -> list[str]:
+    """Fonction permettant d'obtenir une liste d'UUIDs à partir d'une chaîne de caractères donnée.
+
+    :param uuid_chain: Chaîne d'UUIDs à séparer.
+    :return: Une liste d'UUIDs.
+    :raise ValueError: Si la chaîne n'est pas un multiple de 16, signifiant que la chaîne est mal formée."""
+    chain_len = len(uuid_chain)
+
+    if chain_len % 16 != 0:
+        raise ValueError('The UUID list is malformed.')
+
+    return [uuid_chain[i:i + 16] for i in range(0, chain_len, 16)]
