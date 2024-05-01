@@ -1,55 +1,109 @@
 import flask as fk
 
 from datetime import datetime, date
-
+import re
+import abc
 from mysql.connector import IntegrityError
 
-from pandamonium.database import get_db
-from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error, hash_password
+from pandamonium.database import get_db, Entity, Column
+from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error, hash_password, \
+    uuid_split
 
 column_indexes = {
-    'username': 0,
-    'email': 1,
-    'password': 2,
-    'date_of_birth': 3,
-    'registration_date': 4,
-    'last_connection_date': 5,
-    'friends': 6
+    'uuid': 0,
+    'username': 1,
+    'email': 2,
+    'password': 3,
+    'date_of_birth': 4,
+    'friends': 5,
+    'relations': 6,
+    'registration_date': 7,
+    'last_connection_date': 8,
+    'pronouns': 9,
+    'pb_display_name': 10,
+    'pb_bio': 11,
+    'pv_display_name': 12,
+    'pv_bio': 13,
 }
 
 
-class User:
-    """
-    Classe représentant un utilisateur unique du site web.
+def username_filter(username: str):
+    if re.match('^[\\w.-]{3,16}$', username) is None:
+        return ("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques pouvant contenir des "
+                "tirets (-), des points (.) ou des underscores (_).")
 
-    Invariant: l'utilisateur existe toujours en base de données.
-    """
+
+def email_filter(email: str):
+    if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', email) is None:
+        return "Le format de votre adresse email est invalide."
+
+
+def password_filter(password: str):
+    pw_len = len(password)
+
+    if pw_len < 6 or pw_len > 64:
+        return "Votre mot de passe doit faire entre 6 et 64 caractères."
+
+
+def date_of_birth_filter(date_of_birth: date):
+    if (datetime.now().date() - date_of_birth).days < 15 * 365.25:
+        return "Vous êtes trop jeune pour inscrire sur PANDAMONIUM."
+
+
+class User(Entity, abc.ABC):
+    """Classe représentant un utilisateur unique du site web.
+    Le constructeur principal de la classe User ne doit jamais être appelé en dehors de la classe elle-même."""
 
     def __init__(self,
+                 unique_id: str,
                  username: str,
                  email: str,
                  password: str,
                  date_of_birth: date,
-                 friends: list[str] = None,
+                 pronouns: str,
+                 public_display_name: str,
+                 public_bio: str,
+                 private_display_name: str,
+                 private_bio: str,
+                 friends: str,
+                 relations: str,
                  registration_date: date = datetime.now().date()):
         """Constructeur de la classe User. Crée automatiquement le nouvel utilisateur en base de données.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
 
+        :param unique_id: UUID de l'utilisateur.
         :param username: Nom de l'utilisateur.
         :param email: Adresse mail de l'utilisateur.
         :param password: Mot de passe de l'utilisateur.
-        :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet datetime.
+        :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet date.
+        :param pronouns: Pronoms de l'utilisateur.
+        :param public_display_name: Nom de l'utilisateur en visibilité publique.
+        :param public_bio: Bio de l'utilisateur en visibilité publique.
+        :param private_display_name: Nom de l'utilisateur en visibilité privée.
+        :param private_bio: Bio de l'utilisateur en visibilité privée.
         :param friends: Liste d'amis de l'utilisateur.
-        :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet datetime."""
-        self.username = username
-        self.email = email
-        self.password = hash_password(password)
-        self.date_of_birth = date_of_birth
-        self.friends = friends if friends else []
-        self.last_connection_date = datetime.now().date()
-        self.registration_date = registration_date
+        :param relations: Relations professionnelles de l'utilisateur.
+        :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet date."""
+        super().__init__('user', [
+            Column('uuid', unique_id, 0),
+            Column('username', username, 1, username_filter),
+            Column('email', email, 2, email_filter),
+            Column('password', hash_password(password), 3, password_filter),
+            Column('date_of_birth', date_of_birth, 4, date_of_birth_filter),
+            Column('friends', uuid_split(friends), 5, lambda val: None if len(val) <= 3600 else "Vous avez trop d'amis (100 maximum)."),
+            Column('relations', uuid_split(relations), 6, lambda val: None if len(val) <= 3600 else "Vous avez trop de connaissances (100 maximum)."),
+            Column('registration_date', registration_date, 7),
+            Column('last_connection_date', datetime.now().date(), 8),
+            Column('pronouns', pronouns, 9, lambda val: None if len(val) <= 50 else "Vos pronoms sont trop longs."),
+            Column('pb_display_name', public_display_name, 10, lambda val: None if len(val) <= 50 else "Votre pseudo public est trop long."),
+            Column('pb_bio', public_bio, 11, lambda val: None if len(val) <= 300 else "Votre bio publique est trop longue."),
+            Column('pv_display_name', private_display_name, 12, lambda val: None if len(val) <= 50 else "Votre pseudo privé est trop long."),
+            Column('pv_bio', private_bio, 13, lambda val: None if len(val) <= 300 else "Votre bio privée est trop longue."),
+        ])
 
+    @classmethod
+    def instant(cls):
         if not fill_requirements(
                 username=self.username,
                 email=self.email,
