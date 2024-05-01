@@ -15,4 +15,4 @@ CREATE TABLE users(uuid VARCHAR(36), username VARCHAR(50) NOT NULL, email VARCHA
 -- Déchargement des données de la table `utilisateur`
 --
 
-INSERT INTO `users` (`username`, `email`, `password`, `date_of_birth`, `registered_at`, `logged_at`, `friends`) VALUES ('tartur', 'tartur.dev@gmail.com', 'supermdp', '2006-06-26', '2023-10-06', '2023-10-06', NULL), ('ghosty', 'gae35.9234@skiff.com', 'TarturI<3U', '2007-01-19', '2023-10-06', '2023-10-06', NULL), ('Nicocoin_AHH', 'nicolas.bernier2508@gmail.com', 'nicolas.25', '2006-08-25', '2023-10-06', '2023-10-06', NULL);
+INSERT INTO `users` (`uuid`, `username`, `email`, `password`, `date_of_birth`, `registration_date`, `last_connection_date`, `friends`) VALUES ('e2008d2f-92f6-4e88-80dd-58f08f9581ed', 'tartur', 'tartur.dev@gmail.com', 'supermdp', '2006-06-26', '2023-10-06', '2023-10-06', NULL), ('cae10a02-8555-42ba-8ead-314879f725e3', 'ghosty', 'gae35.9234@skiff.com', 'TarturI<3U', '2007-01-19', '2023-10-06', '2023-10-06', NULL), ('39bfec44-5492-49b2-9063-fb69794a8d73', 'Nicocoin_AHH', 'nicolas.bernier2508@gmail.com', 'nicolas.25', '2006-08-25', '2023-10-06', '2023-10-06', NULL);
