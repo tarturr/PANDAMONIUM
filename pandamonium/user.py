@@ -5,47 +5,30 @@ import re
 import abc
 from mysql.connector import IntegrityError
 
-from pandamonium.database import get_db, Entity, Column
+from pandamonium.database import get_db, Entity
 from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error, hash_password, \
-    uuid_split
-
-column_indexes = {
-    'uuid': 0,
-    'username': 1,
-    'email': 2,
-    'password': 3,
-    'date_of_birth': 4,
-    'friends': 5,
-    'relations': 6,
-    'registration_date': 7,
-    'last_connection_date': 8,
-    'pronouns': 9,
-    'pb_display_name': 10,
-    'pb_bio': 11,
-    'pv_display_name': 12,
-    'pv_bio': 13,
-}
+    uuid_split, max_size_filter
 
 
-def username_filter(username: str):
+def username_filter(username: str) -> str | None:
     if re.match('^[\\w.-]{3,16}$', username) is None:
         return ("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques pouvant contenir des "
                 "tirets (-), des points (.) ou des underscores (_).")
 
 
-def email_filter(email: str):
+def email_filter(email: str) -> str | None:
     if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', email) is None:
         return "Le format de votre adresse email est invalide."
 
 
-def password_filter(password: str):
+def password_filter(password: str) -> str | None:
     pw_len = len(password)
 
     if pw_len < 6 or pw_len > 64:
         return "Votre mot de passe doit faire entre 6 et 64 caractères."
 
 
-def date_of_birth_filter(date_of_birth: date):
+def date_of_birth_filter(date_of_birth: date) -> str | None:
     if (datetime.now().date() - date_of_birth).days < 15 * 365.25:
         return "Vous êtes trop jeune pour inscrire sur PANDAMONIUM."
 
@@ -85,22 +68,37 @@ class User(Entity, abc.ABC):
         :param friends: Liste d'amis de l'utilisateur.
         :param relations: Relations professionnelles de l'utilisateur.
         :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet date."""
-        super().__init__('user', [
-            Column('uuid', unique_id, 0),
-            Column('username', username, 1, username_filter),
-            Column('email', email, 2, email_filter),
-            Column('password', hash_password(password), 3, password_filter),
-            Column('date_of_birth', date_of_birth, 4, date_of_birth_filter),
-            Column('friends', uuid_split(friends), 5, lambda val: None if len(val) <= 3600 else "Vous avez trop d'amis (100 maximum)."),
-            Column('relations', uuid_split(relations), 6, lambda val: None if len(val) <= 3600 else "Vous avez trop de connaissances (100 maximum)."),
-            Column('registration_date', registration_date, 7),
-            Column('last_connection_date', datetime.now().date(), 8),
-            Column('pronouns', pronouns, 9, lambda val: None if len(val) <= 50 else "Vos pronoms sont trop longs."),
-            Column('pb_display_name', public_display_name, 10, lambda val: None if len(val) <= 50 else "Votre pseudo public est trop long."),
-            Column('pb_bio', public_bio, 11, lambda val: None if len(val) <= 300 else "Votre bio publique est trop longue."),
-            Column('pv_display_name', private_display_name, 12, lambda val: None if len(val) <= 50 else "Votre pseudo privé est trop long."),
-            Column('pv_bio', private_bio, 13, lambda val: None if len(val) <= 300 else "Votre bio privée est trop longue."),
-        ])
+        super().__init__(
+            'user',
+            uuid=unique_id,
+            username=(username, username_filter),
+            email=(email, email_filter),
+            password=(hash_password(password), password_filter),
+            date_of_birth=(date_of_birth, date_of_birth_filter),
+            friends=(
+                uuid_split(friends), max_size_filter(3600, "Vous avez trop d'amis (100 maximum).")
+            ),
+            relations=(
+                uuid_split(relations), max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
+            ),
+            registration_date=registration_date,
+            last_connection_date=datetime.now().date(),
+            pronouns=(
+                pronouns, max_size_filter(50, "Vos pronoms sont trop longs.")
+            ),
+            pb_display_name=(
+                public_display_name, max_size_filter(50, "Votre pseudo public est trop long.")
+            ),
+            pb_bio=(
+                public_bio, max_size_filter(300, "Votre bio publique est trop longue.")
+            ),
+            pv_display_name=(
+                private_display_name, max_size_filter(50, "Votre pseudo privé est trop long.")
+            ),
+            pv_bio=(
+                private_bio, max_size_filter(300, "Votre bio privée est trop longue.")
+            )
+        )
 
     @classmethod
     def instant(cls):

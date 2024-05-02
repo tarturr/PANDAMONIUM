@@ -4,7 +4,7 @@ import mysql.connector as connector
 import mysql.connector.abstracts as abstracts
 
 import abc
-
+import typing as tp
 import functools
 
 from pandamonium.security import set_security_error
@@ -13,7 +13,7 @@ from pandamonium.security import set_security_error
 class Column:
     """Classe représentant un 'filtre' spécifique face à une valeur donnée d'une colonne d'une table quelconque."""
 
-    def __init__(self, name: str, value, index: int, constraint=lambda val: None):
+    def __init__(self, name: str, value, index: int, constraint: tp.Callable[[tp.Any], str | None] = lambda val: None):
         """Constructeur de la classe.
 
         :param name: Colonne visée par le filtre.
@@ -43,13 +43,19 @@ class Entity(abc.ABC):
     """Classe représentant une table de la base de données dont les instances ont besoin d'être différenciée des autres
     par un UUID."""
 
-    def __init__(self, name: str, columns: list[Column]):
+    def __init__(self, name: str, **columns):
         """Constructeur de la classe.
 
         :param name: Nom de la table.
-        :param columns: Liste des colonnes de la table."""
+        :param columns: Noms des colonnes de la table, associés à leur valeur ou à une paire valeur-contrainte (sous
+            forme de tuple)."""
         self.name = name
-        self.columns = columns
+
+        for index, (name, column) in enumerate(columns.items()):
+            if isinstance(column, tuple):
+                setattr(self, name, Column(name, column[0], index, column[1]))
+            else:
+                setattr(self, name, Column(name, column, index))
 
     @classmethod
     @abc.abstractmethod
@@ -67,7 +73,7 @@ class Entity(abc.ABC):
         :param values: Paires de clés-valeurs à assigner aux colonnes, où la clé est le nom de la colonne attachée à
             sa valeur."""
         for key, value in values.items():
-            if not list(filter(lambda col: col.name == key, self.columns)):
+            if getattr(self, key, None) is None:
                 raise ValueError(f"La colonne '{key}' n'existe pas dans la table {self.name}.")
 
         self._update(**values)
