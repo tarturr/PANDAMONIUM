@@ -1,3 +1,5 @@
+import uuid
+
 import flask as fk
 
 from datetime import datetime, date
@@ -34,8 +36,7 @@ def date_of_birth_filter(date_of_birth: date) -> str | None:
 
 
 class User(Entity, abc.ABC):
-    """Classe représentant un utilisateur unique du site web.
-    Le constructeur principal de la classe User ne doit jamais être appelé en dehors de la classe elle-même."""
+    """Classe représentant un utilisateur unique du site web."""
 
     def __init__(self,
                  unique_id: str,
@@ -70,7 +71,7 @@ class User(Entity, abc.ABC):
         :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet date."""
         super().__init__(
             'user',
-            uuid=unique_id,
+            uuid=unique_id if unique_id is not None else str(uuid.uuid4()),
             username=(username, username_filter),
             email=(email, email_filter),
             password=(hash_password(password), password_filter),
@@ -101,32 +102,27 @@ class User(Entity, abc.ABC):
         )
 
     @classmethod
-    def instant(cls):
-        if not fill_requirements(
-                username=self.username,
-                email=self.email,
-                password=self.password,
-                date_of_birth=self.date_of_birth):
-            return
-
+    def instant(cls, user: 'User'):
         db = get_db()
 
         with db.cursor() as cursor:
             try:
                 cursor.execute(
                     'INSERT INTO users ('
-                    '    username, email, password, date_of_birth, friends, last_connection_date, registration_date'
+                    '    uuid, username, email, password, date_of_birth, friends, relations, registration_date, '
+                    '    last_connection_date, pronouns, public_display_name, public_bio, private_displayed_name, '
+                    '    private_bio'
                     ') VALUES ('
                     '    %s, %s, %s, %s, %s, %s, %s'
                     ')',
                     (
-                        self.username,
-                        self.email,
-                        self.password,
-                        self.date_of_birth,
-                        ','.join(self.friends),
-                        self.last_connection_date,
-                        self.registration_date
+                        user.username,
+                        user.email,
+                        user.password,
+                        user.date_of_birth,
+                        ','.join(user.friends),
+                        user.last_connection_date,
+                        user.registration_date
                     )
                 )
 
