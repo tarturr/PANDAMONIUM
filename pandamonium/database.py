@@ -60,11 +60,15 @@ class Entity(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def instant(cls):
+        """Constructeur créant à la fois une nouvelle instance de la classe actuelle tout en la créant en base de
+        données."""
         pass
 
     @classmethod
     @abc.abstractmethod
     def fetch_by(cls):
+        """Constructeur créant une instance de la classe actuelle à partir d'informations qui seront récupérées en base
+        de données via une requête SQL de type SELECT."""
         pass
 
     def update(self, **values):
