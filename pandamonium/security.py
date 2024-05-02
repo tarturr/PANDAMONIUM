@@ -1,5 +1,7 @@
 import hashlib as hl
 import re
+import typing
+
 import flask as fk
 from datetime import datetime, date
 
@@ -114,3 +116,12 @@ def uuid_split(uuid_chain: str) -> list[str]:
         raise ValueError('The UUID list is malformed.')
 
     return [uuid_chain[i:i + 16] for i in range(0, chain_len, 16)]
+
+
+def max_size_filter(size: int, message: str) -> typing.Callable[[typing.Any], str | None]:
+    """Fonction qui en retourne une autre dont la responsabilité est de retourner message si l'argument qui lui sera
+    passé a une longueur supérieure à size, sinon None.
+
+    :param size: Longueur maximale de l'argument testé dans le futur.
+    :param message: Message à afficher si la longueur de l'argument dépasse la longueur maximale."""
+    return lambda val: None if len(val) <= size else message
