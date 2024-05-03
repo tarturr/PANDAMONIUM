@@ -5,42 +5,7 @@ import typing
 import flask as fk
 from datetime import datetime, date
 
-
-def fill_requirements(**identifiers) -> bool:
-    """Fonction permettant de vérifier les exigences attendues. Elles sont fixées sur le nom de l'utilisateur, son
-    email, son mot de passe ou sa date de naissance.
-
-    :param identifiers: Les paires de valeurs avec en clé 'username', 'email', 'password' ou 'date_of_birth' et la
-        valeur associée à chaque clé qui doit être celle entrée par l'utilisateur.
-    :return: True si tous les exigences attendues sont remplies, sinon False.
-    :raise ValueError: Exception levée si et seulement si une clé rentrée est inexistante."""
-    for identifier in identifiers:
-        value = identifiers[identifier]
-
-        match identifier:
-            case 'username':
-                if re.match('^[\\w.-]{3,16}$', value) is None:
-                    set_security_error("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques "
-                                       "pouvant contenir des tirets (-), des points (.) ou des underscores (_).")
-                    return False
-            case 'email':
-                if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', value) is None:
-                    set_security_error("Le format de votre adresse email est invalide.")
-                    return False
-            case 'password':
-                pw_len = len(value)
-
-                if pw_len < 6 or pw_len > 64:
-                    set_security_error("Votre mot de passe doit faire entre 6 et 64 caractères.")
-                    return False
-            case 'date_of_birth':
-                if (datetime.now().date() - value).days < 15 * 365.25:
-                    set_security_error("Vous êtes trop jeune pour inscrire sur PANDAMONIUM.")
-                    return False
-            case _:
-                raise ValueError(f"L'identificateur {identifier} est inconnu.")
-
-    return True
+from pandamonium.database import column_filter
 
 
 def set_security_error(message: str):
@@ -118,6 +83,7 @@ def uuid_split(uuid_chain: str) -> list[str]:
     return [uuid_chain[i:i + 16] for i in range(0, chain_len, 16)]
 
 
+@column_filter
 def max_size_filter(size: int, message: str) -> typing.Callable[[typing.Any], str | None]:
     """Fonction qui en retourne une autre dont la responsabilité est de retourner message si l'argument qui lui sera
     passé a une longueur supérieure à size, sinon None.
