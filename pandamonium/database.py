@@ -10,10 +10,23 @@ import functools
 from pandamonium.security import set_security_error
 
 
+def column_filter(func):
+    @functools.wraps(func)
+    def wrapper(arg):
+        if arg is not None:
+            return func(arg)
+
+    return wrapper
+
+
 class Column:
     """Classe représentant un 'filtre' spécifique face à une valeur donnée d'une colonne d'une table quelconque."""
 
-    def __init__(self, name: str, value, index: int, constraint: tp.Callable[[tp.Any], str | None] = lambda val: None):
+    def __init__(self,
+                 name: str,
+                 value: tp.Any,
+                 index: int,
+                 constraint: tp.Callable[[tp.Any], str | None] = lambda val: None):
         """Constructeur de la classe.
 
         :param name: Colonne visée par le filtre.
@@ -21,11 +34,28 @@ class Column:
         :param index: Index de la colonne par rapport à sa table (débute à 0).
         :param constraint: Filtre (lambda avec single param) qui sera utilisé sur les données à tester."""
         self.name = name
-        self.value = value
+        self.valid = True
         self.index = index
         self.__constraint = constraint
 
-    def value_fits(self, value) -> bool:
+        if self.__value_fits(value):
+            self.__value = value
+        else:
+            self.__value = None
+            self.valid = False
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value: tp.Any):
+        if self.__value_fits(value):
+            self.__value = value
+        else:
+            self.valid = False
+
+    def __value_fits(self, value) -> bool:
         """Méthode vérifiant si la valeur donnée est valide pour la colonne actuelle.
         Si ce n'est pas le cas, l'erreur obtenue est insérée dans le gestionnaire d'erreur de l'application.
 
@@ -50,12 +80,31 @@ class Entity(abc.ABC):
         :param columns: Noms des colonnes de la table, associés à leur valeur ou à une paire valeur-contrainte (sous
             forme de tuple)."""
         self.name = name
+        self.valid = True
+        self.__columns = {}
 
         for index, (name, column) in enumerate(columns.items()):
             if isinstance(column, tuple):
-                setattr(self, name, Column(name, column[0], index, column[1]))
+                self.__columns[name] = Column(name, column[0], index, column[1])
             else:
-                setattr(self, name, Column(name, column, index))
+                self.__columns[name] = Column(name, column, index)
+
+            if not self.__columns[name].valid:
+                self.valid = False
+                break
+
+    @property
+    def columns(self):
+        return self.__columns
+
+    def get_column(self, name: str) -> Column | None:
+        return self.__columns[name] if name in self.__columns else None
+
+    def set_column(self, name: str, value):
+        self.__columns[name].value = value
+
+        if not self.__columns[name].valid:
+            self.valid = False
 
     @classmethod
     @abc.abstractmethod
@@ -89,21 +138,6 @@ class Entity(abc.ABC):
 
         :param values: Nouvelles valeurs à attribuer aux colonnes de la table."""
         pass
-
-
-def requires(func):
-    @functools.wraps(func)
-    def wrapper(value, **kwargs):
-        for key in kwargs:
-            error_msg = func(kwargs[key], **kwargs)
-
-            if error_msg:
-                set_security_error(error_msg)
-                return False
-
-        return True
-
-    return wrapper
 
 
 def get_db() -> abstracts.MySQLConnectionAbstract:
