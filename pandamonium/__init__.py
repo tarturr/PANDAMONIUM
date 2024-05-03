@@ -4,7 +4,7 @@ import os
 import yaml
 import typing
 
-from pandamonium import auth
+from pandamonium.routes import auth
 from pandamonium.commands import register_commands
 from pandamonium.database import close_db
 
