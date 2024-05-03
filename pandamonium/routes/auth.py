@@ -3,7 +3,7 @@ import functools
 import flask as fk
 
 from pandamonium.security import get_security_error, date_from_string, is_security_error
-from pandamonium.user import User
+from pandamonium.entities.user import User
 
 blueprint = fk.Blueprint('auth', __name__, url_prefix='/auth')
 
