@@ -1,28 +1,30 @@
-import uuid
-
 import flask as fk
 
 from datetime import datetime, date
 import re
 import abc
 from mysql.connector import IntegrityError
+from uuid import uuid4
 
-from pandamonium.database import get_db, Entity
-from pandamonium.security import check_password, date_to_string, fill_requirements, set_security_error, hash_password, \
+from pandamonium.database import get_db, Entity, column_filter
+from pandamonium.security import check_password, date_to_string, set_security_error, hash_password, \
     uuid_split, max_size_filter
 
 
+@column_filter
 def username_filter(username: str) -> str | None:
     if re.match('^[\\w.-]{3,16}$', username) is None:
         return ("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques pouvant contenir des "
                 "tirets (-), des points (.) ou des underscores (_).")
 
 
+@column_filter
 def email_filter(email: str) -> str | None:
     if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', email) is None:
         return "Le format de votre adresse email est invalide."
 
 
+@column_filter
 def password_filter(password: str) -> str | None:
     pw_len = len(password)
 
@@ -30,6 +32,7 @@ def password_filter(password: str) -> str | None:
         return "Votre mot de passe doit faire entre 6 et 64 caractères."
 
 
+@column_filter
 def date_of_birth_filter(date_of_birth: date) -> str | None:
     if (datetime.now().date() - date_of_birth).days < 15 * 365.25:
         return "Vous êtes trop jeune pour inscrire sur PANDAMONIUM."
@@ -39,18 +42,19 @@ class User(Entity, abc.ABC):
     """Classe représentant un utilisateur unique du site web."""
 
     def __init__(self,
-                 unique_id: str,
-                 username: str,
-                 email: str,
-                 password: str,
-                 date_of_birth: date,
-                 pronouns: str,
-                 public_display_name: str,
-                 public_bio: str,
-                 private_display_name: str,
-                 private_bio: str,
-                 friends: str,
-                 relations: str,
+                 unique_id: str | None,
+                 username: str | None,
+                 email: str | None,
+                 password: str | None,
+                 date_of_birth: date | None,
+                 pronouns: str | None,
+                 public_display_name: str | None,
+                 private_display_name: str | None,
+                 public_bio: str = None,
+                 private_bio: str = None,
+                 friends: str = None,
+                 relations: str = None,
+                 bamboos: str = None,
                  registration_date: date = datetime.now().date()):
         """Constructeur de la classe User. Crée automatiquement le nouvel utilisateur en base de données.
 
@@ -71,7 +75,7 @@ class User(Entity, abc.ABC):
         :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet date."""
         super().__init__(
             'user',
-            uuid=unique_id if unique_id is not None else str(uuid.uuid4()),
+            uuid=unique_id if unique_id is not None else str(uuid4()),
             username=(username, username_filter),
             email=(email, email_filter),
             password=(hash_password(password), password_filter),
@@ -81,6 +85,9 @@ class User(Entity, abc.ABC):
             ),
             relations=(
                 uuid_split(relations), max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
+            ),
+            bamboos=(
+                uuid_split(bamboos), max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
             ),
             registration_date=registration_date,
             last_connection_date=datetime.now().date(),
@@ -102,42 +109,59 @@ class User(Entity, abc.ABC):
         )
 
     @classmethod
-    def instant(cls, user: 'User'):
+    def instant(cls, username: str, email: str, password: str, date_of_birth: date, pronouns: str,
+                public_display_name: str, private_display_name: str):
         db = get_db()
+        user = User(
+            str(uuid4()),
+            username,
+            email,
+            password,
+            date_of_birth,
+            pronouns,
+            public_display_name,
+            private_display_name
+        )
+
+        if not user.valid:
+            return None
 
         with db.cursor() as cursor:
             try:
                 cursor.execute(
                     'INSERT INTO users ('
-                    '    uuid, username, email, password, date_of_birth, friends, relations, registration_date, '
-                    '    last_connection_date, pronouns, public_display_name, public_bio, private_displayed_name, '
-                    '    private_bio'
+                    '    uuid, username, email, password, date_of_birth, registration_date, '
+                    '    last_connection_date, pronouns, public_display_name, private_display_name '
                     ') VALUES ('
-                    '    %s, %s, %s, %s, %s, %s, %s'
+                    '    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s'
                     ')',
                     (
-                        user.username,
-                        user.email,
-                        user.password,
-                        user.date_of_birth,
-                        ','.join(user.friends),
-                        user.last_connection_date,
-                        user.registration_date
+                        user.get_column('uuid').value,
+                        user.get_column('username').value,
+                        user.get_column('email').value,
+                        user.get_column('password').value,
+                        user.get_column('date_of_birth').value,
+                        user.get_column('registration_date').value,
+                        user.get_column('last_connection_date').value,
+                        user.get_column('pronouns').value,
+                        user.get_column('public_display_name').value,
+                        user.get_column('private_display_name').value
                     )
                 )
 
-                self.create_session()
+                user.create_session()
             except IntegrityError:
                 set_security_error(
-                    f"Un utilisateur avec l'identifiant '{self.username if self.username else self.email}' existe déjà "
-                    f"en base de données."
+                    f"Une erreur est survenue lors de la création de votre compte. Veuillez utiliser un autre nom "
+                    f"d'utilisateur ou un autre email."
                 )
 
     @classmethod
-    def fetch_by(cls, username: str = '', email: str = ''):
+    def fetch_by(cls, uuid: str = '', username: str = '', email: str = ''):
         """Crée une instance de User à partir du username ou de l'email renseigné (ignoré si le username est fourni). Ne
         renvoie rien si l'utilisateur n'est pas trouvé en base de données avec l'identifiant fourni.
 
+        :param uuid: UUID de l'utilisateur.
         :param username: Nom de l'utilisateur.
         :param email: Adresse mail de l'utilisateur.
 
@@ -146,30 +170,42 @@ class User(Entity, abc.ABC):
             None.
 
         :raises ValueError: Si ni le username ni l'email ne sont fournis (ou qu'ils sont vides)."""
-        is_valid = fill_requirements(username=username)
+        request, param = None, None
 
-        if not (is_valid or fill_requirements(email=email)):
-            set_security_error(f"L'identifiant {username if not is_valid else email} est invalide.")
-            return None
+        if uuid:
+            request = 'SELECT * FROM users WHERE uuid = %s'
+            param = uuid
+        elif username:
+            request = 'SELECT * FROM users WHERE username = %s'
+            param = username
+        elif email:
+            request = 'SELECT * FROM users WHERE email = %s'
+            param = email
+        
+        if request is None:
+            raise ValueError("Tentative de récupérer un utilisateur dans la base de données sans fournir de valeur sur "
+                             "laquelle s'appuyer.")
 
-        db = get_db()
+        with get_db().cursor() as cursor:
+            cursor.execute(request, [param])
+            fetched_user = cursor.fetchone()
 
-        with db.cursor() as cursor:
-            if username:
-                cursor.execute('SELECT * FROM users WHERE username = %s', [username])
-            else:
-                cursor.execute('SELECT * FROM users WHERE email = %s', [email])
-
-            user = cursor.fetchone()
-
-            return cls(
-                user[column_indexes['username']],
-                user[column_indexes['email']],
-                user[column_indexes['password']],
-                user[column_indexes['date_of_birth']],
-                user[column_indexes['friends']].split(","),
-                user[column_indexes['registration_date']],
-            ) if user else None
+        return cls(
+            fetched_user['uuid'],
+            fetched_user['username'],
+            fetched_user['email'],
+            fetched_user['password'],
+            fetched_user['date_of_birth'],
+            fetched_user['friends'],
+            fetched_user['relations'],
+            fetched_user['bamboos'],
+            fetched_user['registration_date'],
+            fetched_user['pronouns'],
+            fetched_user['public_display_name'],
+            fetched_user['public_bio'],
+            fetched_user['private_display_name'],
+            fetched_user['private_bio'],
+        ) if fetched_user is not None else None
 
     @classmethod
     def login(cls, identifier: str, password: str):
@@ -182,23 +218,26 @@ class User(Entity, abc.ABC):
         :param password: Mot de passe de l'utilisateur.
         :rtype: User | None
         :return: Instance de User si toutes les conditions sont remplies, sinon None."""
+        user = User('', None, None, password, None, None, None, None)
 
-        user = None
+        if not user.valid:
+            return None
 
-        if fill_requirements(password=password):
-            if fill_requirements(username=identifier):
-                user = User.fetch_by(username=identifier)
-            elif fill_requirements(email=identifier):
+        user.set_column('username', identifier)
+
+        if user.valid:
+            user = User.fetch_by(username=identifier)
+        else:
+            user.set_column('email', identifier)
+
+            if user.valid:
                 user = User.fetch_by(email=identifier)
             else:
                 set_security_error(f"L'identifiant {identifier} est invalide.")
                 return None
-        else:
-            set_security_error("Votre mot de passe doit faire entre 6 et 64 caractères.")
-            return None
 
         if user is not None:
-            if check_password(password, user.password):
+            if check_password(password, user.get_column('password').value):
                 user.create_session()
                 return user
             else:
@@ -208,86 +247,53 @@ class User(Entity, abc.ABC):
         set_security_error(f"Aucun utilisateur trouvé avec l'identifiant {identifier}.")
         return None
 
-    def update(self,
-               username: str = '',
-               email: str = '',
-               password: str = '',
-               date_of_birth: datetime = None,
-               add_friends: list[str] = None,
-               remove_friends: list[str] = None):
-        """Met à jour les données de l'utilisateur actuel en changeant uniquement les paramètres fournis.
-        La date de connexion est automatiquement mise à celle de l'exécution de cette méthode.
+    def update(self, new_data: 'User'):
+        """Met à jour les données de l'utilisateur actuel en prenant en compte seulement les colonnes dont les valeurs
+        sont non None.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
 
-        :param username: Nom de l'utilisateur.
-        :param email: Adresse mail de l'utilisateur.
-        :param password: Mot de passe de l'utilisateur.
-        :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet datetime.
-        :param add_friends: Amis à ajouter à la liste d'amis de l'utilisateur.
-        :param remove_friends: Amis à supprimer de la liste d'amis de l'utilisateur.
+        :param new_data: Données à mettre à jour dans l'utilisateur actuel. Les colonnes ayant pour valeur None seront
+            ignorées. Attention : toutes les autres écraseront les valeurs des anciennes colonnes.
 
         :raise ValueError: Si l'utilisateur n'existe pas en base de données ou si aucune donnée n'a été fournie en
             arguments."""
-        if not fill_requirements(
-                username=self.username,
-                email=self.email,
-                password=self.password,
-                date_of_birth=self.date_of_birth):
-            return
-
         request = 'UPDATE users SET last_connection_date = %s'
         values = [date_to_string(datetime.now())]
-        new_username = self.username
 
-        if username:
-            request += ', username = %s'
-            values.append(username)
-            new_username = username
+        for column in new_data.columns.values():
+            if column.value is not None:
+                request += f', {column.name} = %s'
 
-        if email:
-            request += ', email = %s'
-            values.append(email)
-            self.email = email
-
-        if password:
-            request += ', password = %s'
-            values.append(password)
-            self.password = password
-
-        if date_of_birth:
-            request += ', date_of_birth = %s'
-            values.append(date_to_string(date_of_birth))
-            self.date_of_birth = date_of_birth
-
-        if add_friends or remove_friends:
-            if add_friends:
-                self.friends.extend(add_friends)
-
-            if remove_friends:
-                self.friends = filter(lambda friend: friend not in remove_friends, self.friends)
-
-            request += ', friends = %s'
-            values.append(','.join(self.friends))
+                match column.value:
+                    case date():
+                        values.append(date_to_string(column.value))
+                    case list():
+                        values.append(''.join(column.value))
+                    case _:
+                        values.append(column.value)
 
         if len(values) == 1:
             raise ValueError("Une requête UPDATE ne peut pas être exécutée si aucun changement de valeur n'est "
                              "exécuté dans la base de données.")
 
-        request += ' WHERE username = %s'
-        values.append(self.username)
+        request += ' WHERE uuid = %s'
+        values.append(self.get_column('uuid').value)
 
         db = get_db()
 
         with db.cursor() as cursor:
             try:
                 cursor.execute(request, values)
-                self.username = new_username
+
+                for column in new_data.columns.values():
+                    if column.value is not None:
+                        self.set_column(column.name, column.value)
             except IntegrityError:
-                set_security_error("Un utilisateur avec le nom "
-                                   f"'{new_username if self.username != new_username else self.email}' existe déjà.")
+                set_security_error("Une erreur est survenue lors de la mise à jour de vos données. Le nom "
+                                   "d'utilisateur ou l'email est peut-être déjà pris par un autre compte.")
 
     def create_session(self):
         """Initialise une nouvelle session à partir de l'utilisateur actuel."""
         fk.session.clear()
-        fk.session['username'] = self.username
+        fk.session['username'] = self.get_column('username').value
