@@ -126,7 +126,7 @@ class Entity(abc.ABC):
         :param values: Paires de clés-valeurs à assigner aux colonnes, où la clé est le nom de la colonne attachée à
             sa valeur."""
         for key, value in values.items():
-            if getattr(self, key, None) is None:
+            if key not in self.__columns:
                 raise ValueError(f"La colonne '{key}' n'existe pas dans la table {self.name}.")
 
         self._update(**values)

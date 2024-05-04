@@ -28,8 +28,12 @@ def register_page():
         email = fk.request.form['email']
         password = fk.request.form['password']
         date_of_birth = fk.request.form['date_of_birth']
+        public_display_name = fk.request.form['public_display_name']
+        private_display_name = fk.request.form['private_display_name']
+        pronouns = fk.request.form['pronouns']
 
-        user = User(username, email, password, date_from_string(date_of_birth))
+        user = User.instant(username, email, password, date_from_string(date_of_birth), pronouns, public_display_name,
+                            private_display_name)
 
         if is_security_error():
             fk.flash(get_security_error())
