@@ -1,12 +1,15 @@
-{% extends 'base.html' %}
+{% extends 'form.html' %}
 
 {% block title %}S'enregistrer{% endblock %}
 
-{% block body %}
+{% block form %}
     <h1>S'inscrire</h1>
 
-    <form method="POST" style="display: flex; flex-direction: column; height: 50vh; width: 20vw;">
+    <form method="POST" style="display: flex; flex-direction: column; width: 20vw;">
         <input name="username" type="text" placeholder="Pseudo" required>
+        <input name="public_display_name" type="text" placeholder="Pseudo d'affichage public" required>
+        <input name="private_display_name" type="text" placeholder="Pseudo d'affichage privé" required>
+        <input name="pronouns" type="text" placeholder="Pronoms" required>
         <input name="email" type="email" placeholder="Email" required>
         <input name="password" type="password" placeholder="Mot de passe" required>
         <input name="date_of_birth" type="date" placeholder="Date de naissance" required>

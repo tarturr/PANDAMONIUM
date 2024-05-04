@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    {% block form %}
+    {% endblock %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="errors">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+{% endblock %}
