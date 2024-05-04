@@ -13,6 +13,11 @@ from pandamonium.security import check_password, date_to_string, set_security_er
 
 @column_filter
 def username_filter(username: str) -> str | None:
+    """Filter for a username value type.
+
+    :param username: Username input by the user.
+
+    :return: None if the username has a correct pattern, otherwise an error message."""
     if re.match('^[\\w.-]{3,16}$', username) is None:
         return ("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques pouvant contenir des "
                 "tirets (-), des points (.) ou des underscores (_).")
@@ -20,12 +25,22 @@ def username_filter(username: str) -> str | None:
 
 @column_filter
 def email_filter(email: str) -> str | None:
+    """Filter for an email value type.
+
+    :param email: Username input by the user.
+
+    :return: None if the email has a correct pattern, otherwise an error message."""
     if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', email) is None:
         return "Le format de votre adresse email est invalide."
 
 
 @column_filter
 def password_filter(password: str) -> str | None:
+    """Filter for a password value type.
+
+    :param password: Username input by the user.
+
+    :return: None if the password has a correct pattern, otherwise an error message."""
     pw_len = len(password)
 
     if pw_len < 6 or pw_len > 64:
@@ -34,6 +49,11 @@ def password_filter(password: str) -> str | None:
 
 @column_filter
 def date_of_birth_filter(date_of_birth: date) -> str | None:
+    """Filter for a date of birth value type.
+
+    :param date_of_birth: Username input by the user.
+
+    :return: None if the date of birth has a correct pattern, otherwise an error message."""
     if (datetime.now().date() - date_of_birth).days < 15 * 365.25:
         return "Vous êtes trop jeune pour inscrire sur PANDAMONIUM."
 
@@ -114,6 +134,16 @@ class User(Entity, abc.ABC):
     @classmethod
     def instant(cls, username: str, email: str, password: str, date_of_birth: date, pronouns: str,
                 public_display_name: str, private_display_name: str):
+        """Constructeur créant à la fois une nouvelle instance de la classe actuelle tout en la créant en base de
+        données.
+
+        :param username: Nom de l'utilisateur.
+        :param email: Adresse mail de l'utilisateur.
+        :param password: Mot de passe de l'utilisateur.
+        :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet date.
+        :param pronouns: Pronoms de l'utilisateur.
+        :param public_display_name: Nom de l'utilisateur en visibilité publique.
+        :param private_display_name: Nom de l'utilisateur en visibilité privée."""
         db = get_db()
         user = User(
             None,
