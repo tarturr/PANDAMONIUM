@@ -78,32 +78,35 @@ class User(Entity, abc.ABC):
             uuid=unique_id if unique_id is not None else str(uuid4()),
             username=(username, username_filter),
             email=(email, email_filter),
-            password=(hash_password(password), password_filter),
+            password=(password, password_filter),
             date_of_birth=(date_of_birth, date_of_birth_filter),
             friends=(
-                uuid_split(friends), max_size_filter(3600, "Vous avez trop d'amis (100 maximum).")
+                uuid_split(friends) if friends is not None else [],
+                max_size_filter(3600, "Vous avez trop d'amis (100 maximum).")
             ),
             relations=(
-                uuid_split(relations), max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
+                uuid_split(relations) if relations is not None else [],
+                max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
             ),
             bamboos=(
-                uuid_split(bamboos), max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
+                uuid_split(bamboos) if bamboos is not None else [],
+                max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
             ),
             registration_date=registration_date,
             last_connection_date=datetime.now().date(),
             pronouns=(
                 pronouns, max_size_filter(50, "Vos pronoms sont trop longs.")
             ),
-            pb_display_name=(
+            public_display_name=(
                 public_display_name, max_size_filter(50, "Votre pseudo public est trop long.")
             ),
-            pb_bio=(
+            public_bio=(
                 public_bio, max_size_filter(300, "Votre bio publique est trop longue.")
             ),
-            pv_display_name=(
+            private_display_name=(
                 private_display_name, max_size_filter(50, "Votre pseudo privé est trop long.")
             ),
-            pv_bio=(
+            private_bio=(
                 private_bio, max_size_filter(300, "Votre bio privée est trop longue.")
             )
         )
@@ -113,48 +116,49 @@ class User(Entity, abc.ABC):
                 public_display_name: str, private_display_name: str):
         db = get_db()
         user = User(
-            str(uuid4()),
+            None,
             username,
             email,
-            password,
+            hash_password(password),
             date_of_birth,
             pronouns,
             public_display_name,
             private_display_name
         )
 
-        if not user.valid:
-            return None
-
-        with db.cursor() as cursor:
-            try:
-                cursor.execute(
-                    'INSERT INTO users ('
-                    '    uuid, username, email, password, date_of_birth, registration_date, '
-                    '    last_connection_date, pronouns, public_display_name, private_display_name '
-                    ') VALUES ('
-                    '    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s'
-                    ')',
-                    (
-                        user.get_column('uuid').value,
-                        user.get_column('username').value,
-                        user.get_column('email').value,
-                        user.get_column('password').value,
-                        user.get_column('date_of_birth').value,
-                        user.get_column('registration_date').value,
-                        user.get_column('last_connection_date').value,
-                        user.get_column('pronouns').value,
-                        user.get_column('public_display_name').value,
-                        user.get_column('private_display_name').value
+        if user.valid:
+            with db.cursor() as cursor:
+                try:
+                    cursor.execute(
+                        'INSERT INTO users ('
+                        '    uuid, username, email, password, date_of_birth, registration_date, '
+                        '    last_connection_date, pronouns, public_display_name, private_display_name '
+                        ') VALUES ('
+                        '    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s'
+                        ')',
+                        (
+                            user.get_column('uuid').value,
+                            user.get_column('username').value,
+                            user.get_column('email').value,
+                            user.get_column('password').value,
+                            user.get_column('date_of_birth').value,
+                            user.get_column('registration_date').value,
+                            user.get_column('last_connection_date').value,
+                            user.get_column('pronouns').value,
+                            user.get_column('public_display_name').value,
+                            user.get_column('private_display_name').value
+                        )
                     )
-                )
 
-                user.create_session()
-            except IntegrityError:
-                set_security_error(
-                    f"Une erreur est survenue lors de la création de votre compte. Veuillez utiliser un autre nom "
-                    f"d'utilisateur ou un autre email."
-                )
+                    user.create_session()
+                    return user
+                except IntegrityError:
+                    set_security_error(
+                        f"Une erreur est survenue lors de la création de votre compte. Veuillez utiliser un autre nom "
+                        f"d'utilisateur ou un autre email."
+                    )
+
+        return None
 
     @classmethod
     def fetch_by(cls, uuid: str = '', username: str = '', email: str = ''):
@@ -186,7 +190,7 @@ class User(Entity, abc.ABC):
             raise ValueError("Tentative de récupérer un utilisateur dans la base de données sans fournir de valeur sur "
                              "laquelle s'appuyer.")
 
-        with get_db().cursor() as cursor:
+        with get_db().cursor(dictionary=True) as cursor:
             cursor.execute(request, [param])
             fetched_user = cursor.fetchone()
 
@@ -196,15 +200,15 @@ class User(Entity, abc.ABC):
             fetched_user['email'],
             fetched_user['password'],
             fetched_user['date_of_birth'],
+            fetched_user['pronouns'],
+            fetched_user['public_display_name'],
+            fetched_user['private_display_name'],
+            fetched_user['public_bio'],
+            fetched_user['private_bio'],
             fetched_user['friends'],
             fetched_user['relations'],
             fetched_user['bamboos'],
             fetched_user['registration_date'],
-            fetched_user['pronouns'],
-            fetched_user['public_display_name'],
-            fetched_user['public_bio'],
-            fetched_user['private_display_name'],
-            fetched_user['private_bio'],
         ) if fetched_user is not None else None
 
     @classmethod
@@ -247,7 +251,7 @@ class User(Entity, abc.ABC):
         set_security_error(f"Aucun utilisateur trouvé avec l'identifiant {identifier}.")
         return None
 
-    def update(self, new_data: 'User'):
+    def _update(self, new_data: 'User'):
         """Met à jour les données de l'utilisateur actuel en prenant en compte seulement les colonnes dont les valeurs
         sont non None.
 
