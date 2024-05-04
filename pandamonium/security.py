@@ -1,11 +1,8 @@
 import hashlib as hl
-import re
 import typing
 
 import flask as fk
 from datetime import datetime, date
-
-from pandamonium.database import column_filter
 
 
 def set_security_error(message: str):
@@ -75,6 +72,9 @@ def uuid_split(uuid_chain: str) -> list[str]:
     :param uuid_chain: Chaîne d'UUIDs à séparer.
     :return: Une liste d'UUIDs.
     :raise ValueError: Si la chaîne n'est pas un multiple de 16, signifiant que la chaîne est mal formée."""
+    if uuid_chain is None:
+        return []
+
     chain_len = len(uuid_chain)
 
     if chain_len % 16 != 0:
@@ -83,11 +83,10 @@ def uuid_split(uuid_chain: str) -> list[str]:
     return [uuid_chain[i:i + 16] for i in range(0, chain_len, 16)]
 
 
-@column_filter
 def max_size_filter(size: int, message: str) -> typing.Callable[[typing.Any], str | None]:
     """Fonction qui en retourne une autre dont la responsabilité est de retourner message si l'argument qui lui sera
     passé a une longueur supérieure à size, sinon None.
 
     :param size: Longueur maximale de l'argument testé dans le futur.
     :param message: Message à afficher si la longueur de l'argument dépasse la longueur maximale."""
-    return lambda val: None if len(val) <= size else message
+    return lambda val: None if val is None or len(val) <= size else message
