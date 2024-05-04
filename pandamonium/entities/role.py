@@ -22,8 +22,8 @@ class Role(Entity, abc.ABC):
                  color: str | None,
                  hierarchy: int | None,
                  admin: bool | None,
-                 perm_managing_channels: str | None,
-                 perm_managing_roles: str | None,
+                 perm_managing_channels: bool | None,
+                 perm_managing_roles: bool | None,
                  perm_delete: bool | None,
                  perm_ban: bool | None,
                  perm_kick: bool | None,
@@ -55,14 +55,8 @@ class Role(Entity, abc.ABC):
             color=color,
             hierarchy=(hierarchy, hierarchy_filter),
             admin=admin,
-            perm_managing_channels=(
-                perm_managing_channels,
-                max_size_filter(50, "???")
-            ),
-            perm_managing_roles=(
-                perm_managing_roles,
-                max_size_filter(50, "???")
-            ),
+            perm_managing_channels=perm_managing_channels,
+            perm_managing_roles=perm_managing_roles,
             perm_delete=perm_delete,
             perm_ban=perm_ban,
             perm_kick=perm_kick,
