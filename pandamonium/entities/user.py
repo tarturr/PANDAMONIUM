@@ -12,11 +12,11 @@ from pandamonium.security import check_password, date_to_string, set_security_er
 
 @column_filter
 def username_filter(username: str) -> str | None:
-    """Filter for a username value type.
+    """Filtre pour une donnée de type nom d'utilisateur.
 
-    :param username: Username input by the user.
+    :param username: Nom d'utilisateur entré par l'utilisateur.
 
-    :return: None if the username has a correct pattern, otherwise an error message."""
+    :return: None si le nom d'utilisateur a un schéma correct, sinon un message d'erreur."""
     if re.match('^[\\w.-]{3,16}$', username) is None:
         return ("Votre nom d'utilisateur doit faire entre 3 et 16 caractères alphanumériques pouvant contenir des "
                 "tirets (-), des points (.) ou des underscores (_).")
@@ -24,22 +24,22 @@ def username_filter(username: str) -> str | None:
 
 @column_filter
 def email_filter(email: str) -> str | None:
-    """Filter for an email value type.
+    """Filtre pour une donnée de type email.
 
-    :param email: Username input by the user.
+    :param email: Email entré par l'utilisateur.
 
-    :return: None if the email has a correct pattern, otherwise an error message."""
+    :return: None si l'email a un schéma correct, sinon un message d'erreur."""
     if re.fullmatch('^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$', email) is None:
         return "Le format de votre adresse email est invalide."
 
 
 @column_filter
 def password_filter(password: str) -> str | None:
-    """Filter for a password value type.
+    """Filtre pour une donnée de type mot de passe.
 
-    :param password: Username input by the user.
+    :param password: Mot de passe entré par l'utilisateur.
 
-    :return: None if the password has a correct pattern, otherwise an error message."""
+    :return: None si le mot de passe a un schéma correct, sinon un message d'erreur."""
     pw_len = len(password)
 
     if pw_len < 6 or pw_len > 64:
@@ -48,11 +48,11 @@ def password_filter(password: str) -> str | None:
 
 @column_filter
 def date_of_birth_filter(date_of_birth: date) -> str | None:
-    """Filter for a date of birth value type.
+    """Filtre pour une donnée de type date de naissance.
 
-    :param date_of_birth: Username input by the user.
+    :param date_of_birth: Date de naissance entrée par l'utilisateur.
 
-    :return: None if the date of birth has a correct pattern, otherwise an error message."""
+    :return: None si la date de naissance a au moins 15 ans d'écart avec la date actuelle, sinon un message d'erreur."""
     if (datetime.now().date() - date_of_birth).days < 15 * 365.25:
         return "Vous êtes trop jeune pour inscrire sur PANDAMONIUM."
 
