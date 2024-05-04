@@ -4,7 +4,6 @@ from datetime import datetime, date
 import re
 import abc
 from mysql.connector import IntegrityError
-from uuid import uuid4
 
 from pandamonium.database import get_db, Entity, column_filter
 from pandamonium.security import check_password, date_to_string, set_security_error, hash_password, \
@@ -62,7 +61,7 @@ class User(Entity, abc.ABC):
     """Classe représentant un utilisateur unique du site web."""
 
     def __init__(self,
-                 unique_id: str | None,
+                 uuid: str | None,
                  username: str | None,
                  email: str | None,
                  password: str | None,
@@ -80,7 +79,7 @@ class User(Entity, abc.ABC):
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
 
-        :param unique_id: UUID de l'utilisateur.
+        :param uuid: UUID de l'utilisateur.
         :param username: Nom de l'utilisateur.
         :param email: Adresse mail de l'utilisateur.
         :param password: Mot de passe de l'utilisateur.
@@ -95,7 +94,7 @@ class User(Entity, abc.ABC):
         :param registration_date: Date d'inscription de l'utilisateur, sous forme d'objet date."""
         super().__init__(
             'user',
-            uuid=unique_id if unique_id is not None else str(uuid4()),
+            uuid,
             username=(username, username_filter),
             email=(email, email_filter),
             password=(password, password_filter),

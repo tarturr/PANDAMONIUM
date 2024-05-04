@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import flask as fk
 
 import mysql.connector as connector
@@ -78,17 +80,18 @@ class Entity(abc.ABC):
     """Classe représentant une table de la base de données dont les instances ont besoin d'être différenciée des autres
     par un UUID."""
 
-    def __init__(self, name: str, **columns):
+    def __init__(self, name: str, uuid: str | None, **columns):
         """Constructeur de la classe.
 
         :param name: Nom de la table.
+        :param uuid: UUID (clé primaire) de la première colonne.
         :param columns: Noms des colonnes de la table, associés à leur valeur ou à une paire valeur-contrainte (sous
             forme de tuple)."""
         self.name = name
         self.valid = True
-        self.__columns = {}
+        self.__columns = {'uuid': Column('uuid', uuid if uuid is not None else str(uuid4()), 0)}
 
-        for index, (name, column) in enumerate(columns.items()):
+        for index, (name, column) in enumerate(columns.items(), 1):
             if isinstance(column, tuple):
                 self.__columns[name] = Column(name, column[0], index, column[1])
             else:
