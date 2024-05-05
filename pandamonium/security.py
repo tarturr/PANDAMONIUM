@@ -77,10 +77,10 @@ def uuid_split(uuid_chain: str) -> list[str]:
 
     chain_len = len(uuid_chain)
 
-    if chain_len % 16 != 0:
+    if chain_len % 36 != 0:
         raise ValueError('The UUID list is malformed.')
 
-    return [uuid_chain[i:i + 16] for i in range(0, chain_len, 16)]
+    return [uuid_chain[i:i + 36] for i in range(0, chain_len, 36)]
 
 
 def max_size_filter(size: int, message: str) -> typing.Callable[[typing.Any], str | None]:
