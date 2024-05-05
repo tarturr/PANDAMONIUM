@@ -3,8 +3,11 @@ import flask_socketio as sock
 
 from pandamonium.entities.user import User
 from pandamonium.routes.auth import login_required
+from pandamonium.routes import bamboo
 
 blueprint = fk.Blueprint('app', __name__, url_prefix='/app')
+
+blueprint.register_blueprint(bamboo.blueprint)
 
 
 @blueprint.before_app_request
@@ -27,10 +30,12 @@ def feed():
     return fk.render_template('feed.html')
 
 
+"""
 @blueprint.route('/bamboo/<string:bamboo_uuid>')
 @login_required
 def bamboo(bamboo_uuid: str = None):
-    """Charge le bamboo visé s'il y en a un, sinon affiche la liste des bamboos de l'utilisateur."""
+    """#Charge le bamboo visé s'il y en a un, sinon affiche la liste des bamboos de l'utilisateur.
+"""
     user = fk.g.user
     return fk.render_template('app/bamboo.html', user=user)
 
@@ -41,7 +46,7 @@ def bamboo(bamboo_uuid: str = None):
     #         return fk.render_template('app/bamboo.html', user=user)
     #
     # return fk.render_template('app/bamboos.html', user=user)
-
+"""
 
 def register_events(socket: sock.SocketIO):
     """Enregistre tous les events de messagerie existants dans l'application PANDAMONIUM.
