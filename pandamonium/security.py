@@ -4,8 +4,6 @@ import typing
 import flask as fk
 from datetime import datetime, date
 
-from pandamonium.database import column_filter
-
 
 def set_security_error(message: str):
     """Crée un message d'erreur inséré dans le cache d'erreur du module security.
@@ -91,6 +89,8 @@ def max_size_filter(size: int, message: str) -> typing.Callable[[typing.Any], st
 
     :param size: Longueur maximale de l'argument testé dans le futur.
     :param message: Message à afficher si la longueur de l'argument dépasse la longueur maximale."""
+    from pandamonium.database import column_filter
+
     @column_filter
     def filter_func(val):
         if len(val) > size:
