@@ -3,6 +3,16 @@
 {% block title %}Vos bambous{% endblock %}
 
 {% block body %}
-    <p><a href="/app/bamboo/create">Créer mon propre bambou</a></p>
-    <h1>Voici la liste de vos bambous !</h1>
+
+    {% if g.user.bamboos != [] %}
+        <h1>Voici la liste de vos bambous !</h1>
+        {{g.user.get_column('bamboos').value}}
+        {% for bamboo in g.user.get_column('bamboos').value %}
+            <div>{{bamboo.name}}</div>
+        {% endfor %}
+    {% else %}
+        <p>Désolé, vous n'êtes présent sur aucun bambou.</p>
+    {% endif %}
+
+    <h2><a href="/app/bamboo/create">Créer mon propre bambou</a></h2>
 {% endblock %}
