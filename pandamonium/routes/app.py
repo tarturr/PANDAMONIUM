@@ -36,7 +36,12 @@ def register_events(socket: sock.SocketIO):
 
     :param sock.SocketIO socket: L'instance de l'application Flask SocketIO."""
     socket.on_event('user_logged', user_logged)
+    socket.on_event('user_message', user_message)
 
 
 def user_logged(data):
     print('Yup', data)
+
+
+def user_message(data):
+    sock.emit('user_message', data, broadcast=True)

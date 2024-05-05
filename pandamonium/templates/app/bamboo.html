@@ -3,10 +3,17 @@
 {% block title %}{{bamboo_name}}{% endblock %}
 
 {% block head %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/app/socket_io_loader.js') }}"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/app/socket_io_loader.js') }}" defer></script>
 {% endblock %}
 
 {% block body %}
     <h1>Bienvenue sur votre bambou préféré mes bébous !</h1>
+
+    <div class="messages"></div>
+
+    <div class="chat">
+        <input type="text" id="chatbox" placeholder="Tapez votre message...">
+        <button id="send">Envoyer</button>
+    </div>
 {% endblock %}

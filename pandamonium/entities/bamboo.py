@@ -34,7 +34,7 @@ class Bamboo:
             db = get_db()
             with db.cursor() as curs:
                 curs.execute(
-                    'SELECT name, creation_time, uuid_1, members FROM bamboos WHERE uuid = %s',
+                    'SELECT name, creation_date, owner_uuid, members FROM bamboos WHERE uuid = %s',
                     [self.uuid]
                 )
                 bamboo = curs.fetchone()
@@ -51,7 +51,7 @@ class Bamboo:
 
             db = get_db()
             db.cursor().execute(
-                'INSERT INTO bamboos(uuid, name, creation_time, uuid_1, members) VALUES (%s, %s, %s, %s, %s)',
+                'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
                 (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid').value,
                  self.creator.get_column('uuid').value)
             )
@@ -60,7 +60,6 @@ class Bamboo:
             self,
             name: str,
     ):
-
         """Méthode permettant de modifier les informations """
 
         if self.name != name:
