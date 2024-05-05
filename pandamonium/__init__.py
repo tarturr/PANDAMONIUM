@@ -4,7 +4,7 @@ import os
 import yaml
 import typing
 
-from pandamonium.routes import auth, app as webapp
+from pandamonium.routes import auth, app as webapp, bamboo
 from pandamonium.commands import register_commands
 from pandamonium.database import close_db
 
@@ -38,6 +38,7 @@ def create_app(test_config: typing.Mapping[str, typing.Any] = None):
     register_commands(app)
     app.teardown_appcontext(close_db)
     app.register_blueprint(auth.blueprint)
+    app.register_blueprint(bamboo.blueprint)
     app.register_blueprint(webapp.blueprint)
 
     @app.route('/')
