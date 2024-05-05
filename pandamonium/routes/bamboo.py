@@ -28,9 +28,14 @@ def bamboos():
 @blueprint.route('/<bamboo_uuid>')
 @login_required
 def bamboo_page(bamboo_uuid):
-    if 'bamboo' + bamboo_uuid not in fk.session.keys():
-        fk.session['bamboo' + bamboo_uuid] = Bamboo(bamboo_uuid)
-    return fk.render_template('app/bamboo.html', bamboo_name=fk.session['bamboo' + bamboo_uuid].name)
+    user_bamboos = fk.session.get('bamboos')
+
+    if user_bamboos is None:
+        fk.g.bamboos = {}
+
+    fk.g.bamboos['bamboo' + bamboo_uuid] = Bamboo(bamboo_uuid)
+
+    return fk.render_template('app/bamboo.html', bamboo_name=fk.g.bamboos['bamboo' + bamboo_uuid].name)
 
 
 @blueprint.route('/create')
@@ -43,4 +48,4 @@ def creation_form():
 @login_required
 def creation_execution():
     bamboo_created = Bamboo(name=fk.request.form['bamboo_name'])
-    return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=str(bamboo_created.uuid)))
+    return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=bamboo_created.uuid))

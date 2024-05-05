@@ -35,16 +35,16 @@ class Bamboo:
             with db.cursor() as curs:
                 curs.execute(
                     'SELECT name, creation_time, uuid_1, members FROM bamboos WHERE uuid = %s',
-                    self.uuid
+                    [self.uuid]
                 )
                 bamboo = curs.fetchone()
                 self.name = bamboo[0]
-                self.creation_time = date_from_string(bamboo[1])
+                self.creation_time = bamboo[1]
                 self.creator = bamboo[2]
                 self.members = uuid_split(bamboo[3])
 
         elif name is not None:
-            self.uuid = uuid4()
+            self.uuid = str(uuid4())
             self.name = name
             self.creator = fk.g.user
             self.creation_time = date_to_string(datetime.now())
@@ -52,8 +52,8 @@ class Bamboo:
             db = get_db()
             db.cursor().execute(
                 'INSERT INTO bamboos(uuid, name, creation_time, uuid_1, members) VALUES (%s, %s, %s, %s, %s)',
-                (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid'),
-                 self.creator.get_column('uuid'))
+                (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid').value,
+                 self.creator.get_column('uuid').value)
             )
 
     def update(
