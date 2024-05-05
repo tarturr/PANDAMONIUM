@@ -1,49 +1,47 @@
 import flask as fk
-import flask_socketio as sock
 
 import os
 import yaml
 import typing
 
-from pandamonium.routes import auth, app
+from pandamonium.routes import auth, app as webapp
 from pandamonium.commands import register_commands
 from pandamonium.database import close_db
-from pandamonium.routes.app import register_events
 
 
-flask_app = fk.Flask(__name__, instance_relative_config=True)
+def create_app(test_config: typing.Mapping[str, typing.Any] = None):
+    """Fonction de création de l'application Flask avec la possibilité de définir une configuration spécifique durant
+    la phase de test. Si elle n'est pas fournie, alors Flask va chercher le fichier de configuration par défaut,
+    config.yml, qui n'existe pour le moment pas.
 
-with flask_app.open_resource('db_credentials.yml') as db_credentials_file:
-    db_credentials = yaml.safe_load(db_credentials_file)
+    :param test_config: Configuration de test de l'application."""
+    app = fk.Flask(__name__, instance_relative_config=True)
 
-flask_app.config.from_mapping(
-    SECRET_KEY='dev',
-    DATABASE_CREDENTIALS=db_credentials,
-)
+    with app.open_resource('db_credentials.yml') as db_credentials_file:
+        db_credentials = yaml.safe_load(db_credentials_file)
 
-socket = sock.SocketIO(flask_app)
-flask_app.config.from_pyfile('config.py', silent=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        DATABASE_CREDENTIALS=db_credentials,
+    )
 
-try:
-    os.makedirs(flask_app.instance_path)
-except OSError:
-    pass
-
-register_commands(flask_app)
-flask_app.teardown_appcontext(close_db)
-flask_app.register_blueprint(auth.blueprint)
-flask_app.register_blueprint(app.blueprint)
-
-
-@flask_app.route('/')
-def index():
-    if 'username' in fk.session:
-        return fk.redirect(fk.url_for('app.feed'))
+    if test_config is None:
+        app.config.from_pyfile('config.py', silent=True)
     else:
+        app.config.from_mapping(test_config)
+
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    register_commands(app)
+    app.teardown_appcontext(close_db)
+    app.register_blueprint(auth.blueprint)
+    app.register_blueprint(webapp.blueprint)
+
+    @app.route('/')
+    def index():
         return fk.render_template('index.html')
 
-
-register_events(socket)
-
-if __name__ == '__main__':
-    socket.run(flask_app, allow_unsafe_werkzeug=True)
+    return app
