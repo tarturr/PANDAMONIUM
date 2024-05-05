@@ -1,0 +1,12 @@
+{% extends 'form.html' %}
+
+{% block title %}Créer un bambou{% endblock %}
+
+{% block form %}
+    <h1>Créez votre bambou</h1>
+
+    <form method="POST" style="display: flex; flex-direction: column; width: 20vw;" action="/app/bamboo/creation">
+        <input name="bamboo_name" type="text" placeholder="Nom du bambou" required>
+        <input type="submit" placeholder="Créer">
+    </form>
+{% endblock %}
