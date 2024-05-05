@@ -29,9 +29,8 @@ class Bamboo:
         Les différents attributs donnés à l'instance sont : nom, date de création, uuid du créateur et membres (sous la
         forme d'une liste)."""
 
-        if bamboo_uuid:
+        if bamboo_uuid is not None:
             self.uuid = bamboo_uuid
-
             db = get_db()
             with db.cursor() as curs:
                 curs.execute(
@@ -44,16 +43,17 @@ class Bamboo:
                 self.creator = bamboo[2]
                 self.members = uuid_split(bamboo[3])
 
-        elif name:
+        elif name is not None:
             self.uuid = uuid4()
             self.name = name
-            self.creator = fk.session['username']
+            self.creator = fk.g.user
             self.creation_time = date_to_string(datetime.now())
 
             db = get_db()
             db.cursor().execute(
-                'INSERT INTO bamboos(uuid, name, creation_time, creator, members) VALUES (%s, %s, %s, %s, %s)',
-                (self.uuid, self.name, self.creation_time, self.creator, self.creator)
+                'INSERT INTO bamboos(uuid, name, creation_time, uuid_1, members) VALUES (%s, %s, %s, %s, %s)',
+                (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid'),
+                 self.creator.get_column('uuid'))
             )
 
     def update(
