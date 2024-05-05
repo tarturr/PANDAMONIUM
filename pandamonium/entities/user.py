@@ -6,6 +6,7 @@ import abc
 from mysql.connector import IntegrityError
 
 from pandamonium.database import get_db, Entity, column_filter
+from pandamonium.entities.bamboo import Bamboo
 from pandamonium.security import check_password, date_to_string, set_security_error, hash_password, \
     uuid_split, max_size_filter
 
@@ -108,7 +109,7 @@ class User(Entity, abc.ABC):
                 max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
             ),
             bamboos=(
-                uuid_split(bamboos) if bamboos is not None else [],
+                [Bamboo(bamboo_uuid) for bamboo_uuid in uuid_split(bamboos)] if bamboos is not None else [],
                 max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
             ),
             registration_date=registration_date,
