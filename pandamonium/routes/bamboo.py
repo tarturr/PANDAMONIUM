@@ -33,9 +33,10 @@ def bamboo_page(bamboo_uuid):
     if user_bamboos is None:
         fk.g.bamboos = {}
 
-    fk.g.bamboos['bamboo' + bamboo_uuid] = Bamboo(bamboo_uuid)
+    fk.g.bamboos[bamboo_uuid] = Bamboo(bamboo_uuid)
+    fk.g.current_bamboo = bamboo_uuid
 
-    return fk.render_template('app/bamboo.html', bamboo_name=fk.g.bamboos['bamboo' + bamboo_uuid].name)
+    return fk.render_template('app/bamboo.html', bamboo_name=fk.g.bamboos[bamboo_uuid].name)
 
 
 @blueprint.route('/create')
