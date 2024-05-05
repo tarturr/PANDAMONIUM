@@ -16,38 +16,45 @@ class Bamboo:
 
     def __init__(
             self,
-            bamboo_uuid: str
+            bamboo_uuid: str = None,
+            name: str = None
     ):
-        """Ctor d'un bambou. Prend en paramètre l'uuid du bamboo et récupère dans la base de données
-        les différents attributs de l'instance : nom, date de création, uuid du créateur et membres (sous la forme d'une
-        liste)."""
+        """Ctor d'un bambou. Instancie le bambou à partir de la base de données si son uuid est donné en argument.
+        Sinon, crée le bambou dans la base de données si le nom est indiqué en argument.
+        Paramètres :
+            bamboo_uuid STR
+                L'UUID du bambou existant à aller chercher dans la base de données et à instancier.
+            name STR
+                Le nom du bambou à créer et à instancier
+        Les différents attributs donnés à l'instance sont : nom, date de création, uuid du créateur et membres (sous la
+        forme d'une liste)."""
 
-        self.uuid = bamboo_uuid
+        if bamboo_uuid:
+            self.uuid = bamboo_uuid
 
-        db = get_db()
-        with db.cursor() as curs:
-            curs.execute(
-                'SELECT name, creation_time, uuid_1, members FROM bamboos WHERE uuid = %s',
-                self.uuid
+            db = get_db()
+            with db.cursor() as curs:
+                curs.execute(
+                    'SELECT name, creation_time, uuid_1, members FROM bamboos WHERE uuid = %s',
+                    self.uuid
+                )
+                bamboo = curs.fetchone()
+                self.name = bamboo[0]
+                self.creation_time = date_from_string(bamboo[1])
+                self.creator = bamboo[2]
+                self.members = uuid_split(bamboo[3])
+
+        elif name:
+            self.uuid = uuid4()
+            self.name = name
+            self.creator = fk.session['username']
+            self.creation_time = date_to_string(datetime.now())
+
+            db = get_db()
+            db.cursor().execute(
+                'INSERT INTO bamboos(uuid, name, creation_time, creator, members) VALUES (%s, %s, %s, %s, %s)',
+                (self.uuid, self.name, self.creation_time, self.creator, self.creator)
             )
-            bamboo = curs.fetchone()
-            self.name = bamboo[0]
-            self.creation_time = date_from_string(bamboo[1])
-            self.creator = bamboo[2]
-            self.members = uuid_split(bamboo[3])
-
-    def create(self, name):
-        """Méthode qui ajoute un bambou à la base de données et instancie le bambou dans Python."""
-        self.uuid = uuid4()
-        self.name = name
-        self.creator = fk.session['username']
-        self.creation_time = date_to_string(datetime.now())
-
-        db = get_db()
-        db.cursor().execute(
-            'INSERT INTO bamboos(uuid, name, creation_time, creator, members) VALUES (%s, %s, %s, %s, %s)',
-            (self.uuid, self.name, self.creation_time, self.creator, self.creator)
-        )
 
     def update(
             self,
