@@ -28,8 +28,8 @@ def bamboos():
 @blueprint.route('/<bamboo_uuid>')
 @login_required
 def bamboo(bamboo_uuid):
-    if not fk.g.session[str('bamboo' + bamboo_uuid)]:
-        fk.g.session[str('bamboo' + bamboo_uuid)] = Bamboo(bamboo_uuid)
+    if not fk.g.session['bamboo' + bamboo_uuid]:
+        fk.g.session['bamboo' + bamboo_uuid] = Bamboo(bamboo_uuid)
     return fk.render_template('app/bamboo.html')
 
 
