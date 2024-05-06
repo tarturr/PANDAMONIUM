@@ -26,6 +26,7 @@ def bamboos():
 
 
 @blueprint.route('/<bamboo_uuid>')
+@blueprint.route('/<bamboo_uuid>/<branch_uuid>')
 @login_required
 def bamboo_page(bamboo_uuid):
     user_bamboos = fk.session.get('bamboos')
