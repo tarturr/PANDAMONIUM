@@ -29,7 +29,7 @@ def bamboos():
 @blueprint.route('/<bamboo_uuid>')
 @blueprint.route('/<bamboo_uuid>/<branch_uuid>')
 @login_required
-def bamboo_page(bamboo_uuid, branch_uuid = None):
+def bamboo_page(bamboo_uuid, branch_uuid=None):
     user_bamboos = fk.session.get('bamboos')
 
     if user_bamboos is None:
@@ -38,10 +38,11 @@ def bamboo_page(bamboo_uuid, branch_uuid = None):
     fk.g.bamboos[bamboo_uuid] = Bamboo(bamboo_uuid)
     fk.g.current_bamboo = bamboo_uuid
 
-    fk.g.branches[branch_uuid] = Branch(branch_uuid)
-    fk.g.current_branch = branch_uuid
+    if branch_uuid is not None:
+        fk.g.branches[branch_uuid] = Branch(branch_uuid)
+        fk.g.current_branch = branch_uuid
 
-    return fk.render_template('app/bamboo.html', bamboo_name=fk.g.bamboos[bamboo_uuid].name)
+    return fk.render_template('app/bamboo.html')
 
 
 @blueprint.route('/create')
@@ -55,3 +56,17 @@ def creation_form():
 def creation_execution():
     bamboo_created = Bamboo(name=fk.request.form['bamboo_name'])
     return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=bamboo_created.uuid))
+
+
+@blueprint.route('/create-branch')
+@login_required
+def create_branch():
+    return fk.render_template('app/create_branch.html')
+
+
+@blueprint.route('/branch-creation-ongoing', methods=['POST'])
+@login_required
+def branch_creation_execution():
+    branch_created = Branch(name=fk.request.form['branch_name'])
+    return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=fk.g.current_bamboo,
+                                  branch_uuid=branch_created.uuid))
