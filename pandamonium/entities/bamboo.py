@@ -67,6 +67,20 @@ class Bamboo:
 
             db = get_db()
             db.cursor().execute(
-                'UPDATE servers SET name = %s WHERE id = %s',
+                'UPDATE bamboos SET name = %s WHERE id = %s',
                 (self.name, self.uuid)
             )
+
+    def get_branches(self):
+        """Méthode qui renvoie une liste contenant les uuid de toutes les branches faisant partie de l'instance."""
+        db = get_db()
+        with db.cursor() as curs:
+            curs.execute(
+                'SELECT uuid FROM branches WHERE parent_bamboo = %s',
+                [self.uuid]
+            )
+            result = curs.fetchall()
+            branches_list = []
+            for branch in result:
+                branches_list.append(branch)
+        return branches_list
