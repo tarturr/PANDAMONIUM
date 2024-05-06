@@ -110,7 +110,7 @@ class Entity(abc.ABC):
 
         :param name: Nom de la colonne.
 
-        :return L'instance de Column portant le nom donné en argument, ou None si elle n'existe pas."""
+        :return La valeur de la colonne portant le nom donné en argument, ou None si elle n'existe pas."""
         return self.__columns[name].value if name in self.__columns else None
 
     def set_column(self, name: str, value):
