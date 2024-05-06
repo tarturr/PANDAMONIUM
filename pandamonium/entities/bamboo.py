@@ -3,6 +3,7 @@ import flask as fk
 from datetime import datetime
 
 from pandamonium.database import get_db
+from pandamonium.entities.branch import Branch
 from pandamonium.security import date_to_string, uuid_split
 
 from uuid import uuid4
@@ -80,7 +81,5 @@ class Bamboo:
                 [self.uuid]
             )
             result = curs.fetchall()
-            branches_list = []
-            for branch in result:
-                branches_list.append(branch)
-        return branches_list
+
+        return [Branch(uuid[0]) for uuid in result]
