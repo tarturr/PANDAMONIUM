@@ -2,6 +2,7 @@ import flask as fk
 
 from pandamonium.entities.bamboo import Bamboo
 from pandamonium.entities.user import User
+from pandamonium.entities.branch import Branch
 from pandamonium.routes.auth import login_required
 
 blueprint = fk.Blueprint('bamboo', __name__, url_prefix='/bamboo')
@@ -28,7 +29,7 @@ def bamboos():
 @blueprint.route('/<bamboo_uuid>')
 @blueprint.route('/<bamboo_uuid>/<branch_uuid>')
 @login_required
-def bamboo_page(bamboo_uuid):
+def bamboo_page(bamboo_uuid, branch_uuid = None):
     user_bamboos = fk.session.get('bamboos')
 
     if user_bamboos is None:
@@ -36,6 +37,9 @@ def bamboo_page(bamboo_uuid):
 
     fk.g.bamboos[bamboo_uuid] = Bamboo(bamboo_uuid)
     fk.g.current_bamboo = bamboo_uuid
+
+    fk.g.branches[branch_uuid] = Branch(branch_uuid)
+    fk.g.current_branch = branch_uuid
 
     return fk.render_template('app/bamboo.html', bamboo_name=fk.g.bamboos[bamboo_uuid].name)
 
