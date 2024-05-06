@@ -105,7 +105,7 @@ class Entity(abc.ABC):
     def columns(self):
         return self.__columns
 
-    def get_column(self, name: str) -> Column | None:
+    def get_column(self, name: str) -> tp.Any | None:
         """Obtenir la valeur d'une colonne à partir de son nom.
 
         :param name: Nom de la colonne.
