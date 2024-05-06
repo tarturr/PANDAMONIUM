@@ -52,13 +52,13 @@ class Message(Entity, ABC):
             cursor.execute(
                 'INSERT INTO messages VALUES (%s, %s, %s, %s, %s, %s, %s)',
                 (
-                    message.get_column('uuid').value,
-                    message.get_column('content').value,
-                    message.get_column('date_sent').value,
-                    message.get_column('modified').value,
-                    message.get_column('sender_uuid').value,
-                    message.get_column('branch_uuid').value,
-                    message.get_column('response_to_message_uuid').value,
+                    message.get_column('uuid'),
+                    message.get_column('content'),
+                    message.get_column('date_sent'),
+                    message.get_column('modified'),
+                    message.get_column('sender_uuid'),
+                    message.get_column('branch_uuid'),
+                    message.get_column('response_to_message_uuid'),
                 )
             )
 
@@ -96,8 +96,8 @@ class Message(Entity, ABC):
                 cursor.execute(
                     'UPDATE messages SET content = %s, modified = %s WHERE uuid = %s',
                     (
-                        self.get_column('content').value,
-                        self.get_column('modified').value,
-                        self.get_column('uuid').value
+                        self.get_column('content'),
+                        self.get_column('modified'),
+                        self.get_column('uuid')
                     )
                 )

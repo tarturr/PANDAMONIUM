@@ -167,16 +167,16 @@ class User(Entity, abc.ABC):
                         '    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s'
                         ')',
                         (
-                            user.get_column('uuid').value,
-                            user.get_column('username').value,
-                            user.get_column('email').value,
-                            user.get_column('password').value,
-                            user.get_column('date_of_birth').value,
-                            user.get_column('registration_date').value,
-                            user.get_column('last_connection_date').value,
-                            user.get_column('pronouns').value,
-                            user.get_column('public_display_name').value,
-                            user.get_column('private_display_name').value
+                            user.get_column('uuid'),
+                            user.get_column('username'),
+                            user.get_column('email'),
+                            user.get_column('password'),
+                            user.get_column('date_of_birth'),
+                            user.get_column('registration_date'),
+                            user.get_column('last_connection_date'),
+                            user.get_column('pronouns'),
+                            user.get_column('public_display_name'),
+                            user.get_column('private_display_name')
                         )
                     )
 
@@ -271,7 +271,7 @@ class User(Entity, abc.ABC):
                 return None
 
         if user is not None:
-            if check_password(password, user.get_column('password').value):
+            if check_password(password, user.get_column('password')):
                 user.create_session()
                 return user
             else:
@@ -312,7 +312,7 @@ class User(Entity, abc.ABC):
                              "exécuté dans la base de données.")
 
         request += ' WHERE uuid = %s'
-        values.append(self.get_column('uuid').value)
+        values.append(self.get_column('uuid'))
 
         db = get_db()
 
@@ -330,4 +330,4 @@ class User(Entity, abc.ABC):
     def create_session(self):
         """Initialise une nouvelle session à partir de l'utilisateur actuel."""
         fk.session.clear()
-        fk.session['username'] = self.get_column('username').value
+        fk.session['username'] = self.get_column('username')

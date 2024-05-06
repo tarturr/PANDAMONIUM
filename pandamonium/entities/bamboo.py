@@ -52,8 +52,8 @@ class Bamboo:
             db = get_db()
             db.cursor().execute(
                 'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
-                (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid').value,
-                 self.creator.get_column('uuid').value)
+                (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid'),
+                 self.creator.get_column('uuid'))
             )
 
     def update(
