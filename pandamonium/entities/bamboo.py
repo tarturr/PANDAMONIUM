@@ -3,7 +3,7 @@ import flask as fk
 from datetime import datetime
 
 from pandamonium.database import get_db
-from pandamonium.security import date_from_string, date_to_string, uuid_split
+from pandamonium.security import date_to_string, uuid_split
 
 from uuid import uuid4
 
