@@ -7,6 +7,7 @@ from pandamonium.security import date_from_string, date_to_string, uuid_split
 
 from uuid import uuid4
 
+
 class Branch:
     """Classe représentant une branche d'un bambou.
     Une branche est un endroit où les utilisateurs, les pandas, peuvent envoyer des messages au sein d'un bambou.
@@ -43,3 +44,17 @@ class Branch:
                 (self.uuid, self.name, self.parent_bamboo)
             )
 
+    def update(
+            self,
+            name: str,
+    ):
+        """Méthode permettant de modifier les informations """
+
+        if self.name != name:
+            self.name = name
+
+            db = get_db()
+            db.cursor().execute(
+                'UPDATE branches SET name = %s WHERE id = %s',
+                (self.name, self.uuid)
+            )
