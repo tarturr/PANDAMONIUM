@@ -19,6 +19,19 @@ def load_user():
     else:
         fk.g.user = User.fetch_by(username=username)
 
+        user_bamboo = fk.session.get('current_bamboo')
+        user_branch = fk.session.get('current_branch')
+
+        if user_bamboo is None:
+            fk.g.bamboo = None
+        else:
+            fk.g.bamboo = Bamboo(user_bamboo)
+
+        if user_branch is None:
+            fk.g.branch = None
+        else:
+            fk.g.branch = Branch(user_branch)
+
 
 @blueprint.route('/')
 @login_required
@@ -30,17 +43,12 @@ def bamboos():
 @blueprint.route('/<bamboo_uuid>/<branch_uuid>')
 @login_required
 def bamboo_page(bamboo_uuid, branch_uuid=None):
-    user_bamboos = fk.session.get('bamboos')
+    fk.session['current_bamboo'] = bamboo_uuid
 
-    if user_bamboos is None:
-        fk.g.bamboos = {}
-
-    fk.g.bamboos[bamboo_uuid] = Bamboo(bamboo_uuid)
-    fk.g.current_bamboo = bamboo_uuid
+    print(f"YEAAAAAAAAAAAAAAAAAAAH set {fk.session['current_bamboo']} in session")
 
     if branch_uuid is not None:
-        fk.g.branches[branch_uuid] = Branch(branch_uuid)
-        fk.g.current_branch = branch_uuid
+        fk.session['current_bamboo'] = branch_uuid
 
     return fk.render_template('app/bamboo.html')
 
