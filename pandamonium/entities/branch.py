@@ -18,8 +18,7 @@ class Branch:
     def __init__(
             self,
             branch_uuid: str = None,
-            name: str = None,
-            parent_bamboo: str = None
+            name: str = None
     ):
         if branch_uuid is not None:
             self.uuid = branch_uuid
@@ -33,10 +32,10 @@ class Branch:
                 self.name = branch[0]
                 self.parent_bamboo = branch[1]
 
-        elif name is not None and parent_bamboo is not None:
+        elif name is not None:
             self.uuid = str(uuid4())
             self.name = name
-            self.parent_bamboo = fk.g.user
+            self.parent_bamboo = fk.g.current_bamboo
 
             db = get_db()
             db.cursor().execute(
