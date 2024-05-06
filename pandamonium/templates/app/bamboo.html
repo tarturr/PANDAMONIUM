@@ -8,5 +8,19 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Bienvenue sur votre bambou préféré mes bébous !</h1>
+    <h1>Bienvenue sur votre bambou préféré : {{g.bamboos[g.current_bamboo].name}}</h1>
+
+
+    <div class="branches_list">
+        <a href="/app/bamboo/create-branch">Créer une nouvelle branche</a>
+
+    </div>
+
+
+    <div class="messages"></div>
+
+    <div class="chat">
+        <input type="text" id="chatbox" placeholder="Tapez votre message...">
+        <button id="send">Envoyer</button>
+    </div>
 {% endblock %}
