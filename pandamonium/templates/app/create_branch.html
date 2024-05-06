@@ -1,0 +1,12 @@
+{% extends 'form.html' %}
+
+{% block title %}Créer une branche{% endblock %}
+
+{% block form %}
+    <h1>Créez votre branche</h1>
+
+    <form method="POST" style="display: flex; flex-direction: column; width: 20vw;" action="/app/bamboo/branch-creation-ongoing">
+        <input name="branch_name" type="text" placeholder="Nom de la branche" required>
+        <input type="submit" placeholder="Créer">
+    </form>
+{% endblock %}
