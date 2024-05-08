@@ -1,9 +1,5 @@
-import flask as fk
-
-from datetime import datetime
-
 from pandamonium.database import get_db
-from pandamonium.security import date_from_string, date_to_string, uuid_split
+from pandamonium.entities.bamboo import Bamboo
 
 from uuid import uuid4
 
@@ -17,6 +13,7 @@ class Branch:
 
     def __init__(
             self,
+            parent_bamboo: Bamboo,
             branch_uuid: str = None,
             name: str = None
     ):
@@ -30,18 +27,20 @@ class Branch:
                 )
                 branch = curs.fetchone()
                 self.name = branch[0]
-                self.parent_bamboo = branch[1]
+                self.parent_bamboo = parent_bamboo
 
         elif name is not None:
             self.uuid = str(uuid4())
             self.name = name
-            self.parent_bamboo = fk.g.current_bamboo
+            self.parent_bamboo = parent_bamboo
 
             db = get_db()
-            db.cursor().execute(
-                'INSERT INTO branches(uuid, name, bamboo_parent) VALUES (%s, %s, %s)',
-                (self.uuid, self.name, self.parent_bamboo)
-            )
+
+            with db.cursor() as curs:
+                curs.execute(
+                    'INSERT INTO branches(uuid, name, bamboo_uuid) VALUES (%s, %s, %s)',
+                    (self.uuid, self.name, self.parent_bamboo.uuid)
+                )
 
     def update(
             self,

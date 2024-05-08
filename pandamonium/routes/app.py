@@ -44,4 +44,6 @@ def user_logged(data):
 
 
 def user_message(data):
+    user_bamboo = fk.g.bamboos[fk.g.bamboo]
+    user_branch = fk.g.branch[fk.g.branch]
     sock.emit('user_message', data, broadcast=True)

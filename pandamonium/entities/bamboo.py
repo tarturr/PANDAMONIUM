@@ -3,7 +3,6 @@ import flask as fk
 from datetime import datetime
 
 from pandamonium.database import get_db
-from pandamonium.entities.branch import Branch
 from pandamonium.security import date_to_string, uuid_split
 
 from uuid import uuid4
@@ -74,10 +73,12 @@ class Bamboo:
 
     def get_branches(self):
         """Méthode qui renvoie une liste contenant les uuid de toutes les branches faisant partie de l'instance."""
+        from pandamonium.entities.branch import Branch
+
         db = get_db()
         with db.cursor() as curs:
             curs.execute(
-                'SELECT uuid FROM branches WHERE parent_bamboo = %s',
+                'SELECT uuid FROM branches WHERE bamboo_uuid = %s',
                 [self.uuid]
             )
             result = curs.fetchall()

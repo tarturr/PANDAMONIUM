@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{bamboo_name}}{% endblock %}
+{% block title %}{{g.bamboo.name}}{% endblock %}
 
 {% block head %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
@@ -8,13 +8,16 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Bienvenue sur votre bambou préféré : {{g.bamboo.name}}</h1>
+    <h1>Bienvenue sur votre bambou préféré : {{ g.bamboo.name }}</h1>
 
 
     <div class="branches_list">
-        <a href="/app/bamboo/create-branch">Créer une nouvelle branche</a>
-
+        {% for branch in g.bamboo.get_branches() %}
+            <a href="/app/bamboo/{{ g.bamboo.uuid }}/{{ branch.uuid }}">{{ branch.name }}</a>
+        {% endfor %}
     </div>
+
+    <a href="/app/bamboo/create-branch">Créer une nouvelle branche</a>
 
 
     <div class="messages"></div>
