@@ -5,10 +5,11 @@ import re
 import abc
 from mysql.connector import IntegrityError
 
-from pandamonium.database import get_db, Entity, column_filter
+from pandamonium.database import get_db, column_filter
 from pandamonium.entities.bamboo import Bamboo
+from pandamonium.entities.data_structures import Entity, UUIDList
 from pandamonium.security import check_password, date_to_string, set_security_error, hash_password, \
-    uuid_split, max_size_filter
+    max_size_filter
 
 
 @column_filter
@@ -101,15 +102,15 @@ class User(Entity, abc.ABC):
             password=(password, password_filter),
             date_of_birth=(date_of_birth, date_of_birth_filter),
             friends=(
-                uuid_split(friends) if friends is not None else [],
+                UUIDList(friends) if friends is not None else [],
                 max_size_filter(3600, "Vous avez trop d'amis (100 maximum).")
             ),
             relations=(
-                uuid_split(relations) if relations is not None else [],
+                UUIDList(relations) if relations is not None else [],
                 max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
             ),
             bamboos=(
-                [Bamboo(bamboo_uuid) for bamboo_uuid in uuid_split(bamboos)] if bamboos is not None else [],
+                [Bamboo.fetch_by(bamboo_uuid) for bamboo_uuid in UUIDList(bamboos)] if bamboos is not None else [],
                 max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
             ),
             registration_date=registration_date,
@@ -145,6 +146,7 @@ class User(Entity, abc.ABC):
         :param public_display_name: Nom de l'utilisateur en visibilité publique.
         :param private_display_name: Nom de l'utilisateur en visibilité privée."""
         db = get_db()
+
         user = User(
             None,
             username,
