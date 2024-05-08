@@ -140,7 +140,7 @@ class Entity(abc.ABC):
 class UUIDList:
     """Classe représentant une chaîne d'UUIDs."""
 
-    def __init__(self, chain: str):
+    def __init__(self, chain: str = ''):
         """Constructeur de la classe UUIDList.
 
         :param chain: Chaîne d'UUIDs, sous forme de chaîne de caractères.
