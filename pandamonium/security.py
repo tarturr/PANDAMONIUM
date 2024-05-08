@@ -1,4 +1,5 @@
 import hashlib as hl
+import re
 import typing
 
 import flask as fk
@@ -66,21 +67,8 @@ def date_to_string(date_instance: date) -> str:
     return datetime.strftime(date_instance, '%Y-%m-%d')
 
 
-def uuid_split(uuid_chain: str) -> list[str]:
-    """Fonction permettant d'obtenir une liste d'UUIDs à partir d'une chaîne de caractères donnée.
-
-    :param uuid_chain: Chaîne d'UUIDs à séparer.
-    :return: Une liste d'UUIDs.
-    :raise ValueError: Si la chaîne n'est pas un multiple de 16, signifiant que la chaîne est mal formée."""
-    if uuid_chain is None:
-        return []
-
-    chain_len = len(uuid_chain)
-
-    if chain_len % 36 != 0:
-        raise ValueError('The UUID list is malformed.')
-
-    return [uuid_chain[i:i + 36] for i in range(0, chain_len, 36)]
+def is_valid_uuid(uuid: str) -> bool:
+    return re.match('^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$', uuid) is not None
 
 
 def max_size_filter(size: int, message: str) -> typing.Callable[[typing.Any], str | None]:
