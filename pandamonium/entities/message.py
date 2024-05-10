@@ -1,11 +1,12 @@
-from abc import ABC
+import abc
 from datetime import date, datetime
 
-from pandamonium.database import Entity, get_db
+from pandamonium.database import get_db
+from pandamonium.entities.data_structures import Entity
 from pandamonium.security import max_size_filter
 
 
-class Message(Entity, ABC):
+class Message(Entity, abc.ABC):
     """Classe représentant un message envoyé dans la branche d'un bamboo."""
 
     def __init__(self,
@@ -28,7 +29,10 @@ class Message(Entity, ABC):
         super().__init__(
             'message',
             uuid,
-            content=(content, max_size_filter(1, "Votre message est trop court pour être envoyé.")),
+            content=(
+                content,
+                max_size_filter(1, "Votre message est trop court pour être envoyé.")
+            ),
             date_sent=date_sent,
             modified=modified,
             sender_uuid=sender_uuid,
@@ -44,7 +48,10 @@ class Message(Entity, ABC):
         :param content: Contenu du message.
         :param sender_uuid: UUID de l'utilisateur ayant envoyé le message.
         :param branch_uuid: UUID de la branche dans lequel le message a été envoyé.
-        :param response_to_message_uuid: UUID du message répondu, si le message actuel est une réponse à un autre."""
+        :param response_to_message_uuid: UUID du message répondu, si le message actuel est une réponse à un autre.
+
+        :rtype Message | None
+        :return Instance de la classe Message si les données entrées sont valides, sinon None."""
         db = get_db()
         message = Message(None, content, datetime.now(), False, sender_uuid, branch_uuid, response_to_message_uuid)
 
@@ -53,12 +60,12 @@ class Message(Entity, ABC):
                 'INSERT INTO messages VALUES (%s, %s, %s, %s, %s, %s, %s)',
                 (
                     message.get_column('uuid').value,
-                    message.get_column('content').value,
+                    content,
                     message.get_column('date_sent').value,
-                    message.get_column('modified').value,
-                    message.get_column('sender_uuid').value,
-                    message.get_column('branch_uuid').value,
-                    message.get_column('response_to_message_uuid').value,
+                    False,
+                    sender_uuid,
+                    branch_uuid,
+                    response_to_message_uuid,
                 )
             )
 
@@ -66,15 +73,22 @@ class Message(Entity, ABC):
 
     @classmethod
     def fetch_by(cls, uuid: str):
-        """Permet d'obtenir un message via son UUID.
+        """Crée une instance de Message à partir de son UUID. Ne renvoie rien si le message n'est pas trouvé en base de
+        données avec l'UUID fourni.
 
-        :param uuid: UUID du message."""
+        :param uuid: UUID du message.
+
+        :rtype Message | None
+        :return: Instance de la classe Message si le bamboo existe en base de données avec l'UUID fourni, sinon None."""
         with get_db().cursor(dictionary=True) as cursor:
-            cursor.execute('SELECT * FROM messages WHERE uuid = %s', [uuid])
+            cursor.execute('SELECT * FROM messages WHERE uuid = %s', (uuid,))
             fetched_message = cursor.fetchone()
 
+            if fetched_message is None:
+                return None
+
             return cls(
-                fetched_message['uuid'],
+                uuid,
                 fetched_message['content'],
                 fetched_message['date_sent'],
                 fetched_message['modified'],
@@ -96,8 +110,8 @@ class Message(Entity, ABC):
                 cursor.execute(
                     'UPDATE messages SET content = %s, modified = %s WHERE uuid = %s',
                     (
-                        self.get_column('content').value,
-                        self.get_column('modified').value,
+                        new_content,
+                        True,
                         self.get_column('uuid').value
                     )
                 )
