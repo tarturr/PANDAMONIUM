@@ -77,9 +77,7 @@ class User(Entity, abc.ABC):
                  relations: str = None,
                  bamboos: str = None,
                  registration_date: date = datetime.now().date()):
-        """Constructeur de la classe User. Crée automatiquement le nouvel utilisateur en base de données.
-
-        Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
+        """Constructeur de la classe User.
 
         :param uuid: UUID de l'utilisateur.
         :param username: Nom de l'utilisateur.
@@ -116,25 +114,36 @@ class User(Entity, abc.ABC):
             registration_date=registration_date,
             last_connection_date=datetime.now().date(),
             pronouns=(
-                pronouns, max_size_filter(50, "Vos pronoms sont trop longs.")
+                pronouns,
+                max_size_filter(50, "Vos pronoms sont trop longs.")
             ),
             public_display_name=(
-                public_display_name, max_size_filter(50, "Votre pseudo public est trop long.")
+                public_display_name,
+                max_size_filter(50, "Votre pseudo public est trop long.")
             ),
             public_bio=(
-                public_bio, max_size_filter(300, "Votre bio publique est trop longue.")
+                public_bio,
+                max_size_filter(300, "Votre bio publique est trop longue.")
             ),
             private_display_name=(
-                private_display_name, max_size_filter(50, "Votre pseudo privé est trop long.")
+                private_display_name,
+                max_size_filter(50, "Votre pseudo privé est trop long.")
             ),
             private_bio=(
-                private_bio, max_size_filter(300, "Votre bio privée est trop longue.")
+                private_bio,
+                max_size_filter(300, "Votre bio privée est trop longue.")
             )
         )
 
     @classmethod
-    def instant(cls, username: str, email: str, password: str, date_of_birth: date, pronouns: str,
-                public_display_name: str, private_display_name: str):
+    def instant(cls,
+                username: str,
+                email: str,
+                password: str,
+                date_of_birth: date,
+                pronouns: str,
+                public_display_name: str,
+                private_display_name: str):
         """Constructeur créant à la fois une nouvelle instance de la classe actuelle tout en la créant en base de
         données.
 
@@ -144,7 +153,10 @@ class User(Entity, abc.ABC):
         :param date_of_birth: Date de naissance de l'utilisateur, sous forme d'objet date.
         :param pronouns: Pronoms de l'utilisateur.
         :param public_display_name: Nom de l'utilisateur en visibilité publique.
-        :param private_display_name: Nom de l'utilisateur en visibilité privée."""
+        :param private_display_name: Nom de l'utilisateur en visibilité privée.
+
+        :rtype User | None
+        :return Instance de la classe User si les données entrées sont valides, sinon None."""
         db = get_db()
 
         user = User(
@@ -164,21 +176,21 @@ class User(Entity, abc.ABC):
                     cursor.execute(
                         'INSERT INTO users ('
                         '    uuid, username, email, password, date_of_birth, registration_date, '
-                        '    last_connection_date, pronouns, public_display_name, private_display_name '
+                        '    last_connection_date, pronouns, public_display_name, private_display_name'
                         ') VALUES ('
                         '    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s'
                         ')',
                         (
                             user.get_column('uuid').value,
-                            user.get_column('username').value,
-                            user.get_column('email').value,
-                            user.get_column('password').value,
-                            user.get_column('date_of_birth').value,
+                            username,
+                            email,
+                            password,
+                            date_of_birth,
                             user.get_column('registration_date').value,
                             user.get_column('last_connection_date').value,
-                            user.get_column('pronouns').value,
-                            user.get_column('public_display_name').value,
-                            user.get_column('private_display_name').value
+                            pronouns,
+                            public_display_name,
+                            private_display_name
                         )
                     )
 
@@ -252,6 +264,7 @@ class User(Entity, abc.ABC):
 
         :param identifier: Identifiant de l'utilisateur (username ou email).
         :param password: Mot de passe de l'utilisateur.
+
         :rtype: User | None
         :return: Instance de User si toutes les conditions sont remplies, sinon None."""
         user = User('', None, None, password, None, None, None, None)
