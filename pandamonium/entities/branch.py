@@ -92,10 +92,9 @@ class Branch(Entity, abc.ABC):
 
         :param name: Nouveau nom de la branche."""
         if self.get_column('name') != name:
-            bamboo = Branch('', name, None)
+            self.set_column('name', name)
 
-            if bamboo.valid:
-                self.set_column('name', name)
+            if self.valid:
                 db = get_db()
 
                 with db.cursor() as curs:

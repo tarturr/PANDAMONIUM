@@ -105,10 +105,9 @@ class Bamboo(Entity, abc.ABC):
 
         :param name: Nouveau nom du bamboo."""
         if self.get_column('name') != name:
-            bamboo = Bamboo('', name, None)
+            self.set_column('name', name)
 
-            if bamboo.valid:
-                self.set_column('name', name)
+            if self.valid:
                 db = get_db()
 
                 with db.cursor() as curs:
