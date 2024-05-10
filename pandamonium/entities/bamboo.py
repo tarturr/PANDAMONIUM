@@ -28,7 +28,7 @@ class Bamboo(Entity, abc.ABC):
         :param members: Chaîne d'UUIDs des membres du bamboo.
         :param creation_date: Date de création du bamboo."""
         super().__init__(
-            'bamboo',
+            'bamboos',
             uuid,
             name=(
                 name,
