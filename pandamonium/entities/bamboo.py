@@ -113,7 +113,7 @@ class Bamboo(Entity, abc.ABC):
 
                 with db.cursor() as curs:
                     curs.execute(
-                        'UPDATE bamboos SET name = %s WHERE id = %s',
+                        'UPDATE bamboos SET name = %s WHERE uuid = %s',
                         (name, self.get_column('uuid').value)
                     )
 
