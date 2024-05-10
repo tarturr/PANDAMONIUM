@@ -5,9 +5,7 @@ from datetime import date, datetime
 from pandamonium.database import get_db
 from pandamonium.entities.data_structures import Entity, UUIDList
 from pandamonium.entities.user import User
-from pandamonium.security import date_to_string, max_size_filter
-
-from uuid import uuid4
+from pandamonium.security import max_size_filter
 
 
 class Bamboo(Entity, abc.ABC):
@@ -19,18 +17,16 @@ class Bamboo(Entity, abc.ABC):
     def __init__(self,
                  uuid: str | None,
                  name: str | None,
-                 owner_uuid: User | None,
-                 members: UUIDList | None = None,
+                 owner_uuid: str | None,
+                 members: str | None = None,
                  creation_date: date | None = datetime.now().date()):
-        """Ctor d'un bambou. Instancie le bambou à partir de la base de données si son uuid est donné en argument.
-        Sinon, crée le bambou dans la base de données si le nom est indiqué en argument.
-        Paramètres :
-            bamboo_uuid STR
-                L'UUID du bambou existant à aller chercher dans la base de données et à instancier.
-            name STR
-                Le nom du bambou à créer et à instancier
-        Les différents attributs donnés à l'instance sont : nom, date de création, uuid du créateur et membres (sous la
-        forme d'une liste)."""
+        """Constructeur de la classe.
+
+        :param uuid: UUID du bamboo.
+        :param name: Nom du bamboo.
+        :param owner_uuid: UUID du User étant propriétaire du bamboo.
+        :param members: Chaîne d'UUIDs des membres du bamboo.
+        :param creation_date: Date de création du bamboo."""
         super().__init__(
             'bamboo',
             uuid,
@@ -39,12 +35,19 @@ class Bamboo(Entity, abc.ABC):
                 max_size_filter(50, "Le nom de votre bambou est trop long.")
             ),
             creation_date=creation_date,
-            members=members,
-            owner_uuid=owner_uuid
+            members=UUIDList(members),
+            owner_uuid=User.fetch_by(uuid=owner_uuid)
         )
 
     @classmethod
     def fetch_by(cls, uuid: str):
+        """Crée une instance de Bamboo à partir de son UUID. Ne renvoie rien si le bamboo n'est pas trouvé en base de
+        données avec l'UUID fourni.
+
+        :param uuid: UUID du bamboo.
+
+        :rtype Bamboo | None
+        :return: Instance de la classe Bamboo si le bamboo existe en base de données avec l'UUID fourni, sinon None."""
         db = get_db()
 
         with db.cursor() as curs:
@@ -55,30 +58,52 @@ class Bamboo(Entity, abc.ABC):
 
             bamboo = curs.fetchone()
 
+            if bamboo is None:
+                return None
+
             return cls(
                 uuid,
                 bamboo[0],
                 bamboo[1],
-                UUIDList(bamboo[2]),
-                User.fetch_by(username=bamboo[3])
+                bamboo[2],
+                bamboo[3]
             )
 
     @classmethod
-    def instant(cls, name: str, owner: User):
-        uuid = str(uuid4())
-        owner_uuid = owner.get_column('uuid').value
-        creation_date = date_to_string(datetime.now())
+    def instant(cls, name: str, owner_uuid: str):
+        """Constructeur créant à la fois une nouvelle instance de la classe actuelle tout en la créant en base de
+        données.
 
-        db = get_db()
+        :param name: Nom du bamboo.
+        :param owner_uuid: UUID du User étant propriétaire du bamboo.
 
-        with db.cursor() as curs:
-            curs.execute(
-                'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
-                (uuid, name, creation_date, owner_uuid, UUIDList(owner_uuid).chain)
-            )
+        :rtype Bamboo | None
+        :return Instance de la classe Bamboo si les données entrées sont valides, sinon None."""
+        bamboo = Bamboo(None, name, owner_uuid, owner_uuid)
+
+        if bamboo.valid:
+            db = get_db()
+
+            with db.cursor() as curs:
+                curs.execute(
+                    'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
+                    (
+                        bamboo.get_column('uuid').value,
+                        name,
+                        bamboo.get_column('creation_date').value,
+                        owner_uuid,
+                        owner_uuid
+                    )
+                )
+
+                return bamboo
+
+        return None
 
     def _update(self, name: str):
-        """Méthode permettant de modifier les informations """
+        """Met à jour le nom du bamboo actuel.
+
+        :param name: Nouveau nom du bamboo."""
         if self.get_column('name') != name:
             bamboo = Bamboo('', name, None)
 
@@ -93,9 +118,9 @@ class Bamboo(Entity, abc.ABC):
                     )
 
     def get_branches(self):
-        """Méthode qui renvoie une liste contenant les uuid de toutes les branches faisant partie de l'instance."""
-        from pandamonium.entities.branch import Branch
+        """Renvoie une liste contenant les UUIDs de toutes les branches faisant partie de l'instance.
 
+        :return Instance de UUIDList contenant l'UUID de chaque branche du bamboo actuel."""
         db = get_db()
 
         with db.cursor() as curs:
