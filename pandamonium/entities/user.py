@@ -6,10 +6,8 @@ import abc
 from mysql.connector import IntegrityError
 
 from pandamonium.database import get_db, column_filter
-from pandamonium.entities.bamboo import Bamboo
 from pandamonium.entities.data_structures import Entity, UUIDList
-from pandamonium.security import check_password, date_to_string, set_security_error, hash_password, \
-    max_size_filter
+from pandamonium.security import check_password, set_security_error, hash_password, max_size_filter
 
 
 @column_filter
@@ -108,11 +106,11 @@ class User(Entity, abc.ABC):
                 max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
             ),
             bamboos=(
-                [Bamboo.fetch_by(bamboo_uuid) for bamboo_uuid in UUIDList(bamboos)] if bamboos is not None else [],
+                UUIDList(bamboos) if bamboos is not None else [],
                 max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
             ),
             registration_date=registration_date,
-            last_connection_date=datetime.now().date(),
+            last_connection_date=datetime.now(),
             pronouns=(
                 pronouns,
                 max_size_filter(50, "Vos pronoms sont trop longs.")
@@ -184,7 +182,7 @@ class User(Entity, abc.ABC):
                             user.get_column('uuid').value,
                             username,
                             email,
-                            password,
+                            user.get_column('password').value,
                             date_of_birth,
                             user.get_column('registration_date').value,
                             user.get_column('last_connection_date').value,
@@ -308,7 +306,7 @@ class User(Entity, abc.ABC):
         :raise ValueError: Si l'utilisateur n'existe pas en base de données ou si aucune donnée n'a été fournie en
             arguments."""
         request = 'UPDATE users SET last_connection_date = %s'
-        values = [date_to_string(datetime.now())]
+        values = [datetime.now()]
 
         for column in new_data.columns.values():
             if column.value is not None:
@@ -316,7 +314,7 @@ class User(Entity, abc.ABC):
 
                 match column.value:
                     case date():
-                        values.append(date_to_string(column.value))
+                        values.append(column.value)
                     case list():
                         values.append(''.join(column.value))
                     case _:
