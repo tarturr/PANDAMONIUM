@@ -1,86 +1,136 @@
-import flask as fk
+import abc
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pandamonium.database import get_db
-from pandamonium.security import date_to_string, uuid_split
+from pandamonium.entities.data_structures import Entity, UUIDList
+from pandamonium.entities.user import User
+from pandamonium.security import max_size_filter
 
-from uuid import uuid4
 
-
-class Bamboo:
+class Bamboo(Entity, abc.ABC):
     """Classe représentant un serveur unique du réseau social.
     Par "bambou", nous parlons d'un endroit virtuel créé sur notre réseau social pour discuter de façon communautaire.
     Différentes "branches" de discussion peuvent être créése, des rôles et permissions peuvent être
     attribués aux différents membres par le créateur ou les administrateurs du bambou."""
 
-    def __init__(
-            self,
-            bamboo_uuid: str = None,
-            name: str = None
-    ):
-        """Ctor d'un bambou. Instancie le bambou à partir de la base de données si son uuid est donné en argument.
-        Sinon, crée le bambou dans la base de données si le nom est indiqué en argument.
-        Paramètres :
-            bamboo_uuid STR
-                L'UUID du bambou existant à aller chercher dans la base de données et à instancier.
-            name STR
-                Le nom du bambou à créer et à instancier
-        Les différents attributs donnés à l'instance sont : nom, date de création, uuid du créateur et membres (sous la
-        forme d'une liste)."""
+    def __init__(self,
+                 uuid: str | None,
+                 name: str | None,
+                 owner_uuid: str | None,
+                 members: str | None = None,
+                 creation_date: date | None = datetime.now().date()):
+        """Constructeur de la classe.
 
-        if bamboo_uuid is not None:
-            self.uuid = bamboo_uuid
+        :param uuid: UUID du bamboo.
+        :param name: Nom du bamboo.
+        :param owner_uuid: UUID du User étant propriétaire du bamboo.
+        :param members: Chaîne d'UUIDs des membres du bamboo.
+        :param creation_date: Date de création du bamboo."""
+        super().__init__(
+            'bamboos',
+            uuid,
+            name=(
+                name,
+                max_size_filter(50, "Le nom de votre bambou est trop long.")
+            ),
+            creation_date=creation_date,
+            members=UUIDList(members),
+            owner_uuid=User.fetch_by(uuid=owner_uuid)
+        )
+
+    @classmethod
+    def fetch_by(cls, uuid: str):
+        """Crée une instance de Bamboo à partir de son UUID. Ne renvoie rien si le bamboo n'est pas trouvé en base de
+        données avec l'UUID fourni.
+
+        :param uuid: UUID du bamboo.
+
+        :rtype Bamboo | None
+        :return: Instance de la classe Bamboo si le bamboo existe en base de données avec l'UUID fourni, sinon None."""
+        db = get_db()
+
+        with db.cursor() as curs:
+            curs.execute(
+                'SELECT name, creation_date, members, owner_uuid FROM bamboos WHERE uuid = %s',
+                [uuid]
+            )
+
+            bamboo = curs.fetchone()
+
+            if bamboo is None:
+                return None
+
+            return cls(
+                uuid,
+                bamboo[0],
+                bamboo[1],
+                bamboo[2],
+                bamboo[3]
+            )
+
+    @classmethod
+    def instant(cls, name: str, owner_uuid: str):
+        """Constructeur créant à la fois une nouvelle instance de la classe actuelle tout en la créant en base de
+        données.
+
+        :param name: Nom du bamboo.
+        :param owner_uuid: UUID du User étant propriétaire du bamboo.
+
+        :rtype Bamboo | None
+        :return Instance de la classe Bamboo si les données entrées sont valides, sinon None."""
+        bamboo = Bamboo(None, name, owner_uuid, owner_uuid)
+
+        if bamboo.valid:
             db = get_db()
+
             with db.cursor() as curs:
                 curs.execute(
-                    'SELECT name, creation_date, owner_uuid, members FROM bamboos WHERE uuid = %s',
-                    [self.uuid]
+                    'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
+                    (
+                        bamboo.get_column('uuid').value,
+                        name,
+                        bamboo.get_column('creation_date').value,
+                        owner_uuid,
+                        owner_uuid
+                    )
                 )
-                bamboo = curs.fetchone()
-                self.name = bamboo[0]
-                self.creation_time = bamboo[1]
-                self.creator = bamboo[2]
-                self.members = uuid_split(bamboo[3])
 
-        elif name is not None:
-            self.uuid = str(uuid4())
-            self.name = name
-            self.creator = fk.g.user
-            self.creation_time = date_to_string(datetime.now())
+                return bamboo
 
-            db = get_db()
-            db.cursor().execute(
-                'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
-                (self.uuid, self.name, self.creation_time, self.creator.get_column('uuid').value,
-                 self.creator.get_column('uuid').value)
-            )
+        return None
 
-    def update(
-            self,
-            name: str,
-    ):
-        """Méthode permettant de modifier les informations """
+    def _update(self, name: str):
+        """Met à jour le nom du bamboo actuel.
 
-        if self.name != name:
-            self.name = name
+        :param name: Nouveau nom du bamboo."""
+        if self.get_column('name') != name:
+            self.set_column('name', name)
 
-            db = get_db()
-            db.cursor().execute(
-                'UPDATE bamboos SET name = %s WHERE id = %s',
-                (self.name, self.uuid)
-            )
+            if self.valid:
+                db = get_db()
+
+                with db.cursor() as curs:
+                    curs.execute(
+                        'UPDATE bamboos SET name = %s WHERE uuid = %s',
+                        (name, self.get_column('uuid').value)
+                    )
 
     def get_branches(self):
-        """Méthode qui renvoie une liste contenant les uuid de toutes les branches faisant partie de l'instance."""
-        from pandamonium.entities.branch import Branch
+        """Renvoie une liste contenant les UUIDs de toutes les branches faisant partie de l'instance.
 
+        :return Instance de UUIDList contenant l'UUID de chaque branche du bamboo actuel."""
         db = get_db()
+
         with db.cursor() as curs:
             curs.execute(
                 'SELECT uuid FROM branches WHERE bamboo_uuid = %s',
-                [self.uuid]
+                (self.get_column('uuid').value,)
             )
-            result = curs.fetchall()
 
-        return [Branch(uuid[0]) for uuid in result]
+            branch_uuids = UUIDList()
+
+            for result in curs.fetchall():
+                branch_uuids += result
+
+            return branch_uuids
