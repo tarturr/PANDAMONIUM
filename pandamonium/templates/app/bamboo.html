@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 
-{% block title %}{{g.bamboo.name}}{% endblock %}
+{% block title %}{{ g.bamboo.get_column('name') }}{% endblock %}
 
 {% block head %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/app/socket_io_loader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app/socket_io_loader.js') }}" defer></script>
 {% endblock %}
 
 {% block body %}
-    <h1>Bienvenue sur votre bambou préféré : {{ g.bamboo.name }}</h1>
-
+    <h1>Bienvenue sur votre bambou préféré : {{ g.bamboo.get_column('name') }}</h1>
 
     <div class="branches_list">
         {% for branch in g.bamboo.get_branches() %}
-            <a href="/app/bamboo/{{ g.bamboo.uuid }}/{{ branch.uuid }}">{{ branch.name }}</a>
+            <a href="/app/bamboo/{{ g.bamboo.get_column('uuid') }}/{{ g.branch.get_column('uuid') }}">
+                {{ g.branch.get_column('name') }}
+            </a>
         {% endfor %}
     </div>
 
     <a href="/app/bamboo/create-branch">Créer une nouvelle branche</a>
-
 
     <div class="messages"></div>
 

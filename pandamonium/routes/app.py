@@ -1,6 +1,7 @@
 import flask as fk
 import flask_socketio as sock
 
+from pandamonium.entities.message import Message
 from pandamonium.entities.user import User
 from pandamonium.routes.auth import login_required
 from pandamonium.routes import bamboo
@@ -44,6 +45,5 @@ def user_logged(data):
 
 
 def user_message(data):
-    user_bamboo = fk.g.bamboos[fk.g.bamboo]
-    user_branch = fk.g.branch[fk.g.branch]
+    Message.instant(data['data'], fk.g.user.get_column('uuid'), fk.g.branch.get_column('uuid'))
     sock.emit('user_message', data, broadcast=True)

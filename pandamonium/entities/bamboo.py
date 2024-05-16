@@ -36,7 +36,7 @@ class Bamboo(Entity, abc.ABC):
             ),
             creation_date=creation_date,
             members=UUIDList(members),
-            owner_uuid=User.fetch_by(uuid=owner_uuid)
+            owner_uuid=owner_uuid
         )
 
     @classmethod
@@ -88,9 +88,9 @@ class Bamboo(Entity, abc.ABC):
                 curs.execute(
                     'INSERT INTO bamboos(uuid, name, creation_date, owner_uuid, members) VALUES (%s, %s, %s, %s, %s)',
                     (
-                        bamboo.get_column('uuid').value,
+                        bamboo.get_column('uuid'),
                         name,
-                        bamboo.get_column('creation_date').value,
+                        bamboo.get_column('creation_date'),
                         owner_uuid,
                         owner_uuid
                     )
@@ -113,7 +113,7 @@ class Bamboo(Entity, abc.ABC):
                 with db.cursor() as curs:
                     curs.execute(
                         'UPDATE bamboos SET name = %s WHERE uuid = %s',
-                        (name, self.get_column('uuid').value)
+                        (name, self.get_column('uuid'))
                     )
 
     def get_branches(self):
@@ -122,15 +122,15 @@ class Bamboo(Entity, abc.ABC):
         :return Instance de UUIDList contenant l'UUID de chaque branche du bamboo actuel."""
         db = get_db()
 
-        with db.cursor() as curs:
+        with db.cursor(dictionary=True) as curs:
             curs.execute(
                 'SELECT uuid FROM branches WHERE bamboo_uuid = %s',
-                (self.get_column('uuid').value,)
+                (self.get_column('uuid'),)
             )
 
             branch_uuids = UUIDList()
 
             for result in curs.fetchall():
-                branch_uuids += result
+                branch_uuids += result['uuid']
 
             return branch_uuids

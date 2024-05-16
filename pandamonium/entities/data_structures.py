@@ -2,6 +2,7 @@ import abc
 import typing as tp
 from uuid import uuid4
 
+from pandamonium.database import get_db
 from pandamonium.security import set_security_error, is_valid_uuid
 
 
@@ -59,24 +60,24 @@ class Entity(abc.ABC):
     """Classe représentant une table de la base de données dont les instances ont besoin d'être différenciée des autres
     par un UUID."""
 
-    def __init__(self, name: str, uuid: str | None, **columns):
+    def __init__(self, entity_name: str, uuid: str | None, **columns):
         """Constructeur de la classe.
 
-        :param name: Nom de la table.
+        :param entity_name: Nom de la table.
         :param uuid: UUID (clé primaire) de la première colonne.
         :param columns: Noms des colonnes de la table, associés à leur valeur ou à une paire valeur-contrainte (sous
             forme de tuple)."""
-        self.name = name
+        self.name = entity_name
         self.valid = True
         self.__columns = {'uuid': Column('uuid', uuid if uuid is not None else str(uuid4()), 0)}
 
-        for index, (name, column) in enumerate(columns.items(), 1):
+        for index, (entity_name, column) in enumerate(columns.items(), 1):
             if isinstance(column, tuple):
-                self.__columns[name] = Column(name, column[0], index, column[1])
+                self.__columns[entity_name] = Column(entity_name, column[0], index, column[1])
             else:
-                self.__columns[name] = Column(name, column, index)
+                self.__columns[entity_name] = Column(entity_name, column, index)
 
-            if not self.__columns[name].valid:
+            if not self.__columns[entity_name].valid:
                 self.valid = False
                 break
 
@@ -85,6 +86,15 @@ class Entity(abc.ABC):
         return self.__columns
 
     def get_column(self, name: str) -> Column | None:
+        """Obtenir une colonne à partir de son nom.
+
+        :param name: Nom de la colonne.
+
+        :return La valeur de la colonne portant le nom donné en argument, ou None si elle n'existe pas."""
+        column = self.get_column_instance(name)
+        return column.value if column is not None else None
+
+    def get_column_instance(self, name: str) -> Column | None:
         """Obtenir une colonne à partir de son nom.
 
         :param name: Nom de la colonne.
@@ -117,23 +127,23 @@ class Entity(abc.ABC):
         de données via une requête SQL de type SELECT."""
         pass
 
-    def update(self, **values):
-        """Méthode permettant de mettre à jour certaines valeurs de l'instance de la table actuelle.
+    def update(self):
+        """Méthode permettant de mettre à jour certaines valeurs de l'instance de la table actuelle."""
+        fetched_column = self.fetch_by(self.get_column('uuid'))
+        values = {}
 
-        :param values: Paires de clés-valeurs à assigner aux colonnes, où la clé est le nom de la colonne attachée à
-            sa valeur."""
-        for key, value in values.items():
-            if key not in self.__columns:
-                raise ValueError(f"La colonne '{key}' n'existe pas dans la table {self.name}.")
+        for name, column in fetched_column.columns.items():
+            if self.get_column(name) != column.value:
+                values[name] = self.get_column(name)
 
-        self._update(**values)
+        self._update(values)
 
     @abc.abstractmethod
-    def _update(self, **values):
+    def _update(self, new_values: dict[str, tp.Any]):
         """Méthode permettant de mettre à jour certaines valeurs de l'instance de la table actuelle.
         Cette méthode ne doit être utilisée que par les classes filles, qui doivent la redéfinir.
 
-        :param values: Nouvelles valeurs à attribuer aux colonnes de la table."""
+        :param new_values: Nouvelles valeurs à attribuer aux colonnes de la table."""
         pass
 
 

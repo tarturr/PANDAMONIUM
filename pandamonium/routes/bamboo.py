@@ -1,3 +1,5 @@
+import functools
+
 import flask as fk
 
 from pandamonium.entities.bamboo import Bamboo
@@ -25,18 +27,23 @@ def load_user():
         if user_bamboo is None:
             fk.g.bamboo = None
         else:
-            fk.g.bamboo = Bamboo(user_bamboo)
+            fk.g.bamboo = Bamboo.fetch_by(user_bamboo)
 
         if user_branch is None:
             fk.g.branch = None
         else:
-            fk.g.branch = Branch(user_branch)
+            fk.g.branch = Branch.fetch_by(user_branch)
 
 
 @blueprint.route('/')
 @login_required
 def bamboos():
-    return fk.render_template('app/bamboos.html')
+    user_bamboos = [Bamboo.fetch_by(bamboo_uuid) for bamboo_uuid in fk.g.user.get_column('bamboos')]
+
+    return fk.render_template(
+        'app/bamboos.html',
+        bamboos=user_bamboos
+    )
 
 
 @blueprint.route('/<bamboo_uuid>')
@@ -55,20 +62,36 @@ def creation_form():
 @blueprint.route('/creation-ongoing', methods=['POST'])
 @login_required
 def creation_execution():
-    bamboo_created = Bamboo(name=fk.request.form['bamboo_name'])
-    fk.session['bamboo'] = bamboo_created.uuid
-    return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=bamboo_created.uuid))
+    bamboo_created = Bamboo.instant(fk.request.form['bamboo_name'], fk.g.user.get_column('uuid'))
+    fk.g.user.get_column('bamboos').append(bamboo_created.get_column('uuid'))
+    fk.g.user.update()
+    fk.session['bamboo'] = bamboo_created.get_column('uuid')
+    return fk.redirect(fk.url_for('app.bamboo.bamboo_page'))
+
+
+def bamboo_required(view):
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if fk.g.bamboo is None:
+            return fk.redirect(fk.url_for('app.bamboo.creation_form'))
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
 
 
 @blueprint.route('/create-branch')
 @login_required
+@bamboo_required
 def create_branch():
     return fk.render_template('app/create_branch.html')
 
 
 @blueprint.route('/branch-creation-ongoing', methods=['POST'])
 @login_required
+@bamboo_required
 def branch_creation_execution():
-    branch_created = Branch(fk.g.bamboo, name=fk.request.form['branch_name'])
-    return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=fk.g.bamboo.uuid,
-                                  branch_uuid=branch_created.uuid))
+    branch_created = Branch.instant(fk.request.form['branch_name'], fk.g.bamboo.get_column('uuid'))
+    fk.session['branch'] = branch_created.get_column('uuid')
+    return fk.redirect(fk.url_for('app.bamboo.bamboo_page', bamboo_uuid=fk.g.bamboo.get_column('uuid'),
+                                  branch_uuid=branch_created.get_column('uuid')))

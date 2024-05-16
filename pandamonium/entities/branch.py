@@ -49,7 +49,7 @@ class Branch(Entity, abc.ABC):
                 curs.execute(
                     'INSERT INTO branches(uuid, name, bamboo_uuid) VALUES (%s, %s, %s)',
                     (
-                        branch.get_column('uuid').value,
+                        branch.get_column('uuid'),
                         name,
                         bamboo_uuid
                     )
@@ -100,5 +100,5 @@ class Branch(Entity, abc.ABC):
                 with db.cursor() as curs:
                     curs.execute(
                         'UPDATE branches SET name = %s WHERE uuid = %s',
-                        (name, self.get_column('uuid').value)
+                        (name, self.get_column('uuid'))
                     )

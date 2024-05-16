@@ -10,6 +10,7 @@ const sendButton = document.getElementById('send')
 
 sendButton.addEventListener('click', (e) => {
     const message = chatBox.value.trim()
+    console.log(message)
 
     if (message.length > 0) {
         socket.emit('user_message', {data: message})

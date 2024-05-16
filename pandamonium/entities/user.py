@@ -4,6 +4,7 @@ from datetime import datetime, date
 import re
 import abc
 from mysql.connector import IntegrityError
+import typing as tp
 
 from pandamonium.database import get_db, column_filter
 from pandamonium.entities.data_structures import Entity, UUIDList
@@ -98,15 +99,15 @@ class User(Entity, abc.ABC):
             password=(password, password_filter),
             date_of_birth=(date_of_birth, date_of_birth_filter),
             friends=(
-                UUIDList(friends) if friends is not None else [],
+                UUIDList(friends) if friends is not None else UUIDList(),
                 max_size_filter(3600, "Vous avez trop d'amis (100 maximum).")
             ),
             relations=(
-                UUIDList(relations) if relations is not None else [],
+                UUIDList(relations) if relations is not None else UUIDList(),
                 max_size_filter(3600, "Vous avez trop de connaissances (100 maximum).")
             ),
             bamboos=(
-                UUIDList(bamboos) if bamboos is not None else [],
+                UUIDList(bamboos) if bamboos is not None else UUIDList(),
                 max_size_filter(3600, "Vous avez trop de bambous (100 maximum).")
             ),
             registration_date=registration_date,
@@ -179,13 +180,13 @@ class User(Entity, abc.ABC):
                         '    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s'
                         ')',
                         (
-                            user.get_column('uuid').value,
+                            user.get_column('uuid'),
                             username,
                             email,
-                            user.get_column('password').value,
+                            user.get_column('password'),
                             date_of_birth,
-                            user.get_column('registration_date').value,
-                            user.get_column('last_connection_date').value,
+                            user.get_column('registration_date'),
+                            user.get_column('last_connection_date'),
                             pronouns,
                             public_display_name,
                             private_display_name
@@ -284,7 +285,7 @@ class User(Entity, abc.ABC):
                 return None
 
         if user is not None:
-            if check_password(password, user.get_column('password').value):
+            if check_password(password, user.get_column('password')):
                 user.create_session()
                 return user
             else:
@@ -294,48 +295,40 @@ class User(Entity, abc.ABC):
         set_security_error(f"Aucun utilisateur trouvé avec l'identifiant {identifier}.")
         return None
 
-    def _update(self, new_data: 'User'):
+    def _update(self, new_values: dict[str, tp.Any]):
         """Met à jour les données de l'utilisateur actuel en prenant en compte seulement les colonnes dont les valeurs
         sont non None.
 
         Si une erreur survient, elle doit être gérée en utilisant les fonctions du module security.
 
-        :param new_data: Données à mettre à jour dans l'utilisateur actuel. Les colonnes ayant pour valeur None seront
-            ignorées. Attention : toutes les autres écraseront les valeurs des anciennes colonnes.
+        :param new_values: Nouvelles valeurs à attribuer aux colonnes de la table.
 
         :raise ValueError: Si l'utilisateur n'existe pas en base de données ou si aucune donnée n'a été fournie en
             arguments."""
-        request = 'UPDATE users SET last_connection_date = %s'
-        values = [datetime.now()]
+        request = 'UPDATE users SET '
+        values = []
 
-        for column in new_data.columns.values():
-            if column.value is not None:
-                request += f', {column.name} = %s'
+        for name, value in new_values.items():
+            request += f'{name} = %s, '
 
-                match column.value:
-                    case date():
-                        values.append(column.value)
-                    case list():
-                        values.append(''.join(column.value))
-                    case _:
-                        values.append(column.value)
+            val = value.chain if isinstance(value, UUIDList) else value
+            print("Putain de valeur:", val)
+            values.append(val)
 
         if len(values) == 1:
             raise ValueError("Une requête UPDATE ne peut pas être exécutée si aucun changement de valeur n'est "
                              "exécuté dans la base de données.")
 
-        request += ' WHERE uuid = %s'
-        values.append(self.get_column('uuid').value)
+        request = request[:len(request) - 2] + ' WHERE uuid = %s'
+        values.append(self.get_column('uuid'))
+
+        print(f"Request '{request}', values: {values}")
 
         db = get_db()
 
         with db.cursor() as cursor:
             try:
                 cursor.execute(request, values)
-
-                for column in new_data.columns.values():
-                    if column.value is not None:
-                        self.set_column(column.name, column.value)
             except IntegrityError:
                 set_security_error("Une erreur est survenue lors de la mise à jour de vos données. Le nom "
                                    "d'utilisateur ou l'email est peut-être déjà pris par un autre compte.")
@@ -343,4 +336,4 @@ class User(Entity, abc.ABC):
     def create_session(self):
         """Initialise une nouvelle session à partir de l'utilisateur actuel."""
         fk.session.clear()
-        fk.session['username'] = self.get_column('username').value
+        fk.session['username'] = self.get_column('username')

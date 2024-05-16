@@ -1,7 +1,7 @@
 import abc
-from datetime import date, datetime
 
-from pandamonium.database import Entity, column_filter
+from pandamonium.database import column_filter
+from pandamonium.entities.data_structures import Entity
 from pandamonium.security import max_size_filter
 
 
@@ -48,7 +48,7 @@ class Role(Entity, abc.ABC):
         super().__init__(
             'user',
             uuid,
-            name=(
+            entity_name=(
                 name,
                 max_size_filter(50, "Le nom donné à ce rôle est trop long (50 caractères maximum).")
             ),

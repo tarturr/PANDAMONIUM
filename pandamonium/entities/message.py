@@ -41,7 +41,7 @@ class Message(Entity, abc.ABC):
         )
 
     @classmethod
-    def instant(cls, content: str, sender_uuid: str, branch_uuid: str, response_to_message_uuid: str | None):
+    def instant(cls, content: str, sender_uuid: str, branch_uuid: str, response_to_message_uuid: str | None = None):
         """Constructeur créant à la fois une nouvelle instance de la classe actuelle tout en la créant en base de
         données.
 
@@ -59,9 +59,9 @@ class Message(Entity, abc.ABC):
             cursor.execute(
                 'INSERT INTO messages VALUES (%s, %s, %s, %s, %s, %s, %s)',
                 (
-                    message.get_column('uuid').value,
+                    message.get_column('uuid'),
                     content,
-                    message.get_column('date_sent').value,
+                    message.get_column('date_sent'),
                     False,
                     sender_uuid,
                     branch_uuid,
@@ -112,6 +112,6 @@ class Message(Entity, abc.ABC):
                     (
                         new_content,
                         True,
-                        self.get_column('uuid').value
+                        self.get_column('uuid')
                     )
                 )
